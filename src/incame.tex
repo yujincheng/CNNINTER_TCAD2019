@@ -10,17 +10,19 @@ To solve the hardware resources conflicts when the ROS software accesses the CNN
     % \setlength{\abovecaptionskip}{0.cm} 
     % \setlength{\belowcaptionskip}{-0.25cm} 
     \includegraphics[width=0.9\linewidth]{fig/codeexample.pdf}
-    \caption{ ROS code examples.}
+    \vspace{-6mm}
+    \caption{ ROS code examples. Each software function is packaged as independent $Node$ in ROS. A node subscribes to the topics which contain the data structures and processes these data with callback functions (\textbf{FEcallback} in (a), (\textbf{PRcallback} in (b)). Different nodes do not know the running status of others. In INCAME, the developer only needs to provide the priority ($priority=0 or 1$) of each task and the hardware schedules these tasks. The FPGA accelerator for the post-processing of FE uses the ScratchPad memory to directly use the CNN results ($FECnn$ in (a)) without memory copy. 
+    }
 	\label{fig:rosexample}
 \end{figure}
 
 \begin{figure*}[t]
 	\centering
-    % \vspace{-0.1cm} 
     % \setlength{\abovecaptionskip}{0cm} 
     % \setlength{\belowcaptionskip}{-0.05cm} 
     \includegraphics[width=0.99\linewidth]{fig/incame.pdf}
-    \caption{ INCAME framework.}
+    \vspace{-1mm} 
+    \caption{ Fig(a), INCAME framework. CNN backbones are arranged onto the CNN accelerator. Post-processing operations are arranged onto the special logic. For CNN backbone, INCAME inserts virtual instructions at compilation stage (Fig(b)), and dynamically schedules different tasks at runtime (Fig(c)). }
 	\label{fig:incame}
 \end{figure*}
 
@@ -30,9 +32,9 @@ To solve the hardware resources conflicts when the ROS software accesses the CNN
 
 Each function module, such as FE, PR, and VO, is called a \textbf{Node} in ROS. Each node is an independent thread running on CPU, and does not know the running status of others. 
 % Different nodes communicate with others by \textbf{ROS topics}. 
-A node can publish \textbf{ROS topics} and subscribe to topics. The publishing and subscribing nodes connect to the same topic.
+A node can publish \textbf{ROS topics} and subscribe to topics. The publishing and subscribing nodes connect to the same topic to transmit messages.
 % , and neither node needs to know whether the other exists.
-The subscribing node processes the received topics with callback functions. Line 6,7 in \Cref{fig:rosexample}(a) bind the topics (InputFrame) with the callback function (FEcallback to extract the feature-points). 
+The subscribing node processes the received topics with callback functions. Line 6,7 in \Cref{fig:rosexample}(a) bind the topics (InputFrame) with the callback function (FEcallback to extract the feature-points). In the callback function, ROS node processes the CNN backbone to generate the intermediate data (FECnn), and executes the post-processing whose input is the generated intermediate data. If a new topic arrives, but the callback function has not finished processing the previous topic, the new topic will be cached in the message queue of ROS.
 
 
 % The publishing node is called publisher, the subscribing node is called subscriber.
@@ -48,7 +50,7 @@ The subscribing node processes the received topics with callback functions. Line
 
 \subsubsection{Hardware Resources Conflicts In ROS} Although ROS is becoming the fundamental software platform for robotics, the independence between different ROS nodes brings \textbf{hardware resources conflicts challenge} to access the hardware accelerator. 
 % Because developers cannot predict the running state of the CNN accelerator when they write programs, the accelerator may be occupied by other threads when a ROS node needs to call the accelerator. 
-\Cref{fig:rosexample}(a) Line 5 and \Cref{fig:rosexample}(b) Line 4 initialize the accelerator for the nodes. Line 2 in \Cref{fig:rosexample}(a) (b) runs the CNN backbone on the accelerator, respectively. Different nodes in ROS initialize and run the CNN accelerator independently, which may result in hardware resources conflicts. To address this problem, we set the priorities of different tasks at the initialization phase (the {\color{red}priority} parameter), and enable the accelerator interrupt to schedule the high-priority task firstly.
+\Cref{fig:rosexample}(a) Line 5 and \Cref{fig:rosexample}(b) Line 4 initialize the accelerator for the nodes. Line 2 in \Cref{fig:rosexample}(a) (b) runs the CNN backbone on the accelerator, respectively. Different nodes in ROS initialize and run the CNN accelerator independently, which may result in hardware resources conflicts. To address this problem, we set the priorities of different tasks at the initialization phase (the priority parameter), and enable the accelerator interrupt to schedule the high-priority task firstly.
 
 % The runtime status of the CNN accelerator is not predictable when developers writing the program. Line 13 in ROSExample1 and line 9 in ROSExample2 initialize the DPU for each task. Line5 in ROSExample1 an d line 3 in ROSExample2 run the tasks on the same CNN accelerator, which may result in hardware conflicts. In INCAME, the priorities of different tasks are configured at initialization phase to address the hardware conflicts problem.
 
@@ -133,9 +135,10 @@ Hardware modules are implemented for the CPU-intensive Softmax  \cite{Softmax-wi
 
 To eliminate the memory copy between CPU cores and CNN accelerators, we use low-latency ScratchPad memory  \cite{Banakar2002Scratchpad} to directly feed the results from CNN backbones to the post-processing modules. 
 
-\Cref{fig:incame}(b) details the INCAME compilation step and runtime interrupt. Caffe  ~\cite{jia2014caffe} is a popular software framework for CNN, and the *.caffemodel/*.prototxt files define the network parameters and structure in Caffe. The previous deployment process, such as Angel-Eye  ~\cite{guo2017angel} and DPU ~\cite{dpu}, quantizes the weights, and analyze the network topology. The original compiler translates the network topology and the quantization information into the original ISA sequence. INCAME goes further than previous CNN compilers. It selects the optimized interrupt positions in the original instruction sequence, and adds virtual instructions at these positions to enable accelerator interrupt. After that, the original instruction sequence and the added virtual instructions are wrapped to the new interruptible VI-ISA. The wrapped VI-ISA instructions are dumped into a file (instruction.bin), and can be loaded into the instruction spaces on FPGA's DDR.
+\Cref{fig:incame}(b) details the INCAME compilation step and runtime interrupt. At this stage, INCAME translates the CNN model from a software framework to the instruction sequence, which can be executed in the interruptible CNN accelerator. Caffe  ~\cite{jia2014caffe} is a popular software framework for CNN, and the *.caffemodel/*.prototxt files define the network parameters and structure in Caffe. The previous deployment process, such as Angel-Eye  ~\cite{guo2017angel} and DPU ~\cite{dpu}, quantizes the weights, and analyze the network topology. The original compiler translates the network topology and the quantization information into the original ISA sequence. INCAME goes further than previous CNN compilers. It selects the optimized interrupt positions in the original instruction sequence, and adds virtual instructions at these positions to enable accelerator interrupt. After that, the original instruction sequence and the added virtual instructions are wrapped to the new interruptible VI-ISA. The wrapped VI-ISA instructions are dumped into a file (instruction.bin), and can be loaded into the instruction spaces on FPGA's DDR.
 
 
 As illustrated in \Cref{fig:incame}(c), at runtime, an Instruction Arrangement Unit (IAU) in hardware listens to the interrupt request from ROS software, fetches the corresponding VI-ISA interruptible instructions and translates them to the original ISA executed on the CNN accelerator in Angel-Eye  ~\cite{guo2017angel}. 
-The detail of the Virtual-Instruction ISA (VI-ISA) and instruction arrangement unit (IAU) is introduced in \Cref{sec:cnninterrupt}. Although INCAME can be applied to various instruction-based CNN accelerators, we implement and evaluate it based on Angel-Eye  ~\cite{guo2017angel}.
+The detail of the Virtual-Instruction ISA (VI-ISA) and instruction arrangement unit (IAU) is introduced in \Cref{sec:cnninterrupt}. 
+Although INCAME can be applied to various instruction-based CNN accelerators, we implement and evaluate it based on Angel-Eye  ~\cite{guo2017angel}.
 

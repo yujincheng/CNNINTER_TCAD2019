@@ -225,9 +225,9 @@
 
 % *** SUBFIGURE PACKAGES ***
 %\ifCLASSOPTIONcompsoc
-\usepackage[caption=false,font=normalsize,labelfont=sf,textfont=sf]{subfig}
+% \usepackage[caption=false,font=normalsize,labelfont=sf,textfont=sf]{subfig}
 %\else
-%  \usepackage[caption=false,font=footnotesize]{subfig}
+\usepackage[caption=false,font=footnotesize]{subfig}
 %\fi
 % subfig.sty, written by Steven Douglas Cochran, is the modern replacement
 % for subfigure.sty, the latter of which is no longer maintained and is
@@ -294,7 +294,7 @@
 % http://www.ctan.org/pkg/dblfloatfix
 
 \usepackage{cleveref}
-
+\crefname{figure}{fig}{fig}
 
 %\ifCLASSOPTIONcaptionsoff
 %  \usepackage[nomarkers]{endfloat}
@@ -371,7 +371,7 @@
 % not capitalized unless they are the first or last word of the title.
 % Linebreaks \\ can be used within to get better formatting as desired.
 % Do not put math or special symbols in the title.
-\title{INCAME : INterruptable CNN Accelerator for Multi-robot Exploration}
+\title{INCAME : Interruptible CNN Accelerator for Multi-robot Exploration}
 %
 %
 % author names and IEEE memberships
@@ -383,14 +383,30 @@
 % was not built to handle multiple paragraphs
 %
 
-\author{Michael~Shell,~\IEEEmembership{Member,~IEEE,}
-        John~Doe,~\IEEEmembership{Fellow,~OSA,}
-        and~Jane~Doe,~\IEEEmembership{Life~Fellow,~IEEE}% <-this % stops a space
-\thanks{M. Shell was with the Department
-of Electrical and Computer Engineering, Georgia Institute of Technology, Atlanta,
-GA, 30332 USA e-mail: (see http://www.michaelshell.org/contact.html).}% <-this % stops a space
-\thanks{J. Doe and J. Doe are with Anonymous University.}% <-this % stops a space
-\thanks{Manuscript received April 19, 2005; revised August 26, 2015.}}
+% \author{Michael~Shell,~\IEEEmembership{Member,~IEEE,}
+%         John~Doe,~\IEEEmembership{Fellow,~OSA,}
+%         and~Jane~Doe,~\IEEEmembership{Life~Fellow,~IEEE}% <-this % stops a space
+% \thanks{M. Shell was with the Department
+% of Electrical and Computer Engineering, Georgia Institute of Technology, Atlanta,
+% GA, 30332 USA e-mail: (see http://www.michaelshell.org/contact.html).}% <-this % stops a space
+% \thanks{J. Doe and J. Doe are with Anonymous University.}% <-this % stops a space
+% \thanks{Manuscript received April 19, 2005; revised August 26, 2015.}}
+
+
+\author{Jincheng Yu,
+        Zhilin Xu,
+        Shulin Zeng,
+        Chao Yu,
+        Jiantao Qiu,
+        Chaoyang Shen,
+        Yuanfan Xu, \\
+        Guohao Dai,
+        Yu Wang,
+        and Huazhong Yang % <-this % stops a space
+\thanks{This work is supported by National Key Research and Development Program of China (No. 2017YFA0207600 ), National Natural Science Foundation of China (No. U19B2019, 61832007 ), Tsinghua EE Xilinx AI Research Fund, Beijing National Research Center for Information Science and Technology (BNRist), and Beijing Innovation Center for Future Chips.
+}% <-this % stops a space
+\thanks{All authors are from Department of Electronic Engineering, Tsinghua University, Beijing, China.}% <-this % stops a space
+\thanks{Email: yjc16@mails.tsinghua.edu.cn; yu-wang@mail.tsinghua.edu.cn} }
 
 % note the % following the last \IEEEmembership and also \thanks - 
 % these prevent an unwanted space from occurring between the last author name
@@ -413,8 +429,8 @@ GA, 30332 USA e-mail: (see http://www.michaelshell.org/contact.html).}% <-this %
 
 
 % The paper headers
-\markboth{Journal of \LaTeX\ Class Files,~Vol.~14, No.~8, August~2015}%
-{Shell \MakeLowercase{\textit{et al.}}: Bare Demo of IEEEtran.cls for IEEE Journals}
+% \markboth{Journal of \LaTeX\ Class Files,~Vol.~14, No.~8, August~2015}%
+% {Shell \MakeLowercase{\textit{et al.}}: Bare Demo of IEEEtran.cls for IEEE Journals}
 % The only time the second header will appear is for the odd numbered pages
 % after the title page when using the twoside option.
 % 
@@ -438,8 +454,6 @@ GA, 30332 USA e-mail: (see http://www.michaelshell.org/contact.html).}% <-this %
 %\IEEEspecialpapernotice{(Invited Paper)}
 
 
-
-
 % make the title area
 \maketitle
 
@@ -450,9 +464,9 @@ GA, 30332 USA e-mail: (see http://www.michaelshell.org/contact.html).}% <-this %
 \end{abstract}
 
 % Note that keywords are not normally used for peerreview papers.
-\begin{IEEEkeywords}
-IEEE, IEEEtran, journal, \LaTeX, paper, template.
-\end{IEEEkeywords}
+% \begin{IEEEkeywords}
+% IEEE, IEEEtran, journal, \LaTeX, paper, template.
+% \end{IEEEkeywords}
 
 
 
@@ -492,11 +506,8 @@ IEEE, IEEEtran, journal, \LaTeX, paper, template.
 \input{src/conclusion.tex}
 
 % use section* for acknowledgment
-\section*{Acknowledgment}
-
-
-The authors would like to thank...
-
+% \section*{Acknowledgment}
+% This work is supported by National Key Research and Development Program of China (No. 2017YFA0207600 ), National Natural Science Foundation of China (No. U19B2019, 61832007 ), Tsinghua EE Xilinx AI Research Fund, Beijing National Research Center for Information Science and Technology (BNRist), and Beijing Innovation Center for Future Chips.
 
 % Can use something like this to put references on a page
 % by themselves when using endfloat and the captionsoff option.
@@ -538,7 +549,7 @@ The authors would like to thank...
 % \includegraphics command within an optional argument. (You could create
 % your own custom macro containing the \includegraphics command to make things
 % simpler here.)
-%\begin{IEEEbiography}[{\includegraphics[width=1in,height=1.25in,clip,keepaspectratio]{mshell}}]{Michael Shell}
+%\begin{IEEEbiography}[{\includegraphics[width=0.6in,height=0.8in,clip,keepaspectratio]{mshell}}]{Michael Shell}
 % or if you just want to reserve a space for a photo:
 
 % \begin{IEEEbiography}{Michael Shell}
@@ -557,6 +568,67 @@ The authors would like to thank...
 % \begin{IEEEbiographynophoto}{Jane Doe}
 % Biography text here.
 % \end{IEEEbiographynophoto}
+
+
+\begin{IEEEbiography}[{\includegraphics[width=0.6in,height=0.8in,clip,keepaspectratio]{fig/yujc.jpg}}]{Jincheng Yu}
+  \footnotesize
+  received his B.S. degree in electronic engineering department of Tsinghua University, Beijing, China, in 2016. He is currently pursing his Ph.D degree in electronic engineering department of Tsinghua University. His research mainly focues on deep learning acceleration and the hardware architecture for robot systems.
+\end{IEEEbiography}
+
+
+
+\begin{IEEEbiography}[{\includegraphics[width=0.6in,height=0.8in,clip,keepaspectratio]{fig/xuzhl.jpg}}]{Zhilin Xu}
+  \footnotesize
+  received his B.S. degree in College of Electronic Engineering from Beijing University of Posts and Telecommunications, Beijing, in 2018. He is currently pursuing his M.S. degree in the Department of Electronic Engineering, Tsinghua University, Beijing. His research mainly focuses on deep learning acceleration and the hardware architecture for robot systems. 
+\end{IEEEbiography}
+
+
+\begin{IEEEbiography}[{\includegraphics[width=0.6in,height=0.8in,clip,keepaspectratio]{fig/zengsl.jpg}}]{Shulin Zeng}
+  \footnotesize
+  received his B.S. degree in electronic engineering department of Tsinghua University, Beijing, China, in 2014. He is currently pursing his Ph.D degree in electronic engineering department of Tsinghua University. His research mainly focus on software-hardware co-design for deep learning and virtualization in the cloud.
+\end{IEEEbiography}
+
+
+\begin{IEEEbiography}[{\includegraphics[width=0.6in,height=0.8in,clip,keepaspectratio]{fig/yuchao.jpg}}]{Chao Yu}
+  \footnotesize
+  received her B.S. degree in School of Automation of Beijing Institute of Technology, Beijing, China in 2016. In 2019, she received Master degree in Department of mechanical engineering of Tsinghua University. Now she is pursing the Ph.D degree in Department of Electric Engineering of Tsinghua University. Her research mainly focuses on SLAM, Multi-agent Reinforcement Learning (MARL), and Robotics.
+\end{IEEEbiography}
+
+\begin{IEEEbiography}[{\includegraphics[width=0.6in,height=0.8in,clip,keepaspectratio]{fig/qjt.png}}]{Jiantao Qiu}
+  \footnotesize
+  received the B.S. degree in electronic engineering from Tsinghua University, Beijing, China, in 2015. He is currently pursuing the Ph.D. degree with the Center for Brain-Inspired Computing Research, Tsinghua University, Beijing. His current research interests include computing architecture, reinforcement learning, and system scheduling.
+\end{IEEEbiography}
+
+
+\begin{IEEEbiography}[{\includegraphics[width=0.6in,height=0.8in,clip,keepaspectratio]{fig/scy.jpg}}]{Chaoyang Shen}
+  \footnotesize
+  is a fourth year student in electronic enginnering deparment of Tsinghua University, Beijing, China. He is going to pursue his bachelor's degree in Tsinghua Shenzhen International Graduate School, Shenzhen, China. His research mainly focuss on  robotic vision.
+\end{IEEEbiography}
+
+\begin{IEEEbiography}[{\includegraphics[width=0.6in,height=0.8in,clip,keepaspectratio]{fig/xuyf.jpg}}]{Yuanfan Xu}
+  \footnotesize
+  is currently pursuing his B.S. degree in electronic engineering in Tsinghua University, Beijing. His research interests include multi-agent reinforcement learning,  the hardware architecture for robot systems and SLAM.
+\end{IEEEbiography}
+
+\begin{IEEEbiography}[{\includegraphics[width=0.6in,height=0.8in,clip,keepaspectratio]{fig/dgh.jpg}}]{Guohao Dai}
+  \footnotesize
+  received his B.S. degree in 2014 and Ph.D degree (with honor) in 2019 from Tsinghua University, Beijing. He is currently a PostDoc Researcher at the Department of Electronic Engineering, Tsinghua University, Beijing. His current research interests include acceleration of large-scale graph processing on hardware and emerging devices, and virtualization techniques in the cloud. He has received Best Paper Award in ASPDAC 2019, and Best Paper Nomination in DATE 2018.
+\end{IEEEbiography}
+
+\begin{IEEEbiography}[{\includegraphics[width=0.6in,height=0.8in,clip,keepaspectratio]{fig/wangyu.jpg}}]{Yu Wang}
+  \footnotesize
+   (S’05-M’07-SM’14) received the BS and   PhD (with honor) degrees from Tsinghua University,   Beijing, in 2002 and 2007. He is currently a tenured   professor with the Department of Electronic Engineering, Tsinghua University. His research interests   include brain inspired computing, application specific hardware computing, parallel circuit analysis,   and power/reliability aware system design methodology. He has authored and coauthored more than 200   papers in refereed journals and conferences. He has   received Best Paper Award in ASPDAC 2019, FPGA   2017, NVMSA 2017, ISVLSI 2012, and Best Poster Award in HEART 2012   with 9 Best Paper Nominations (DATE18, DAC17, ASPDAC16, ASPDAC14,   ASPDAC12, 2 in ASPDAC10, ISLPED09, CODES09). He is a recipient of   DAC under 40 innovator award (2018), IBM X10 Faculty Award (2010).  
+  % He served as TPC chair for ICFPT 2019 and 2011, ISVLSI2018, finance   chair of ISLPED 2012-2016, track chair for DATE 2017-2019 and GLSVLSI   2018, and served as program committee member for leading conferences in   these areas, including top EDA conferences such as DAC, DATE, ICCAD,   ASP-DAC, and top FPGA conferences such as FPGA and FPT. 
+  Currently,   he serves as co-editor-in-chief of the ACM SIGDA E-Newsletter, associate   editor of the IEEE Transactions on Computer-Aided Design of Integrated   Circuits and Systems,the IEEE Transactions on Circuits and Systems for Video   Technology, the Journal of Circuits, Systems, and Computers,and Special Issue   editor of the Microelectronics Journal. He is now with ACM Distinguished   Speaker Program.   
+\end{IEEEbiography}
+
+
+\begin{IEEEbiography}[{\includegraphics[width=0.6in,height=0.8in,clip,keepaspectratio]{fig/yanghz.png}}]{Huazhong Yang}
+  \footnotesize
+  (M’97-SM’00-F’20) received B.S.   degree in microelectronics in 1989, M.S. and Ph.D.   degree in electronic engineering in 1993 and 1998,   respectively, all from Tsinghua University, Beijing.   In 1993, he joined the Department of Electronic   Engineering, Tsinghua University, Beijing, where   he has been a Professor since 1998. Prof. Yang   was awarded the Distinguished Young Researcher by   NSFC in 2000, Cheung Kong Scholar by the Chinese   Ministry of Education (CME) in 2012, science and   technology award first prize by China Highway and   Transportation Society in 2016, and technological invention award first prize   by CME in 2019. He has been in charge of several projects, including   projects sponsored by the national science and technology major project, 863   program, NSFC, and several international research projects. Prof. Yang has   authored and co-authored over 500 technical papers, 7 books, and over 180   granted Chinese patents. 
+  His current research interests include wireless sensor   networks, data converters, energy-harvesting circuits, nonvolatile processors,   and brain inspired computing. 
+  He has also served as the chair of Northern   China ACM SIGDA Chapter science 2014, general co-chair of ASPDAC20,   navigating committee member of AsianHOST18, and TPC member for ASPDAC05, APCCAS06, ICCCAS07, ASQED09, and ICGCS10.  
+\end{IEEEbiography}
 
 % You can push biographies down or up by placing
 % a \vfill before or after them. The appropriate

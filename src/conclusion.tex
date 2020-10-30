@@ -1,10 +1,12 @@
 \label{sec:conclusion}
 
 In this paper, we propose an interruptible CNN accelerator and a deployment framework, INCAME, for multi-robot exploration. 
-With the help of the virtual-instruction-based interrupt method, the CNN accelerator can switch between different CNN tasks with low interrupt response latency and low extra cost. Note that the development of CPU task scheduling evolved from single-core multi-tasking to multi-core multi-tasking. Similarly, INCAME currently focuses on interrupt support for single-core multi-tasking. We plan to investigate the multi-core multi-tasking for CNN accelerators as part of future work.
+With the help of the virtual-instruction-based interrupt method, the CNN accelerator can switch between different CNN tasks with low interrupt response latency and low extra cost. 
 INCAME only needs to modify the instruction fetch module to IAU in hardware. Thus, it is easy to extend to handle other instruction-driven accelerators.
 Therefore, with the help of INCAME, the independent software in ROS can access the accelerator without hardware resources conflicts, on various CNN accelerators.
+Note that the development of CPU task scheduling evolved from single-core multi-task to multi-core multi-task. Similarly, INCAME currently focuses on interrupt support for single-core multi-task. We plan to investigate the multi-core multi-tasking for CNN accelerators as part of future work.
 INCAME also accelerates the time-consuming post-processing operations like SoftMax, NMS, normalization.
-So that the ROS-based MR-Exploration can achieve real-time performance on embedded FPGA. In the future, more robotic algorithms, such as DOpt, Exploration, and Navigation, can be implemented on hardware and included in INCAME, to gain better energy efficiency and achieve better real-time performance. The multi-task supporting multi-core CNN accelerators can also be included in our future work.
+So that the ROS-based MR-Exploration can achieve real-time performance on embedded FPGA. 
+% In the future, more robotic algorithms, such as DOpt, Exploration, and Navigation, can be implemented on hardware and included in INCAME, to gain better energy efficiency and achieve better real-time performance. The multi-task supporting multi-core CNN accelerators can also be included in our future work.
 
 % asWith the help of the virtual-instruction based method,

@@ -1,20 +1,17 @@
 \label{sec:hardsoftcodesign}
 \label{subsec:FEopt}
 
-The high-priority feature-point extraction (FE) task is latency-sensitive and needs to be computed before the next picture arrives. With the help of the CNN accelerator, the latency of CNN backbone is reduced and the real-time requirement is satisfied. However, the post-processing of FE on the embedded CPU consumes more than 50ms, which becomes the bottleneck of the real-time system. In this section, the software and hardware acceleration for CNN-based FE method is introduced.
-
+The high-priority feature-point extraction (FE) task is latency-sensitive and needs to be computed before the next input frame arrives. With the help of the CNN accelerator, the latency of CNN backbone is reduced. However, the post-processing of FE on the embedded CPU consumes more than 50ms, which becomes the bottleneck of the real-time system. In this section, the software and hardware acceleration for CNN-based FE method is introduced.
 
 
 The flow path of our SuperPoint-based feature extraction method is shown in \Cref{fig:superpoint}. 
-The CNN backbone of SuperPoint maps the input image $I\in \mathbb{R}^{H\times W}$ to a tensor $\mathcal{X}\in \mathbb{R}^{H_c\times W_c\times 65}$ for feature-point detection and to a tensor $\mathcal{D}\in \mathbb{R}^{H_c\times W_c\times D}$ for descriptors generation, where $H_c = H/8$ and $W_c = W/8$.
+The SuperPoint backbone maps the input image $I\in \mathbb{R}^{H\times W}$ to a tensor $\mathcal{X}\in \mathbb{R}^{H_c\times W_c\times 65}$ for feature-point detection and to a tensor $\mathcal{D}\in \mathbb{R}^{H_c\times W_c\times D}$ for descriptors generation, where $H_c = H/8$ and $W_c = W/8$.
 We optimize the software data flow of the components above, making them less computationally complex and more friendly to hardware. 
 
 % As mentioned in \Cref{sec:relate}, there are two steps in the FE method: 1) feature-point detection and 2) feature descriptors generation. 
 In SuperPoint  ~\cite{detone2018superpoint}, there are three components in the feature-point detector: 1) Softmax to generate confidence for each pixel. 2) Non-Maximum Suppression (NMS) to find the pixels with maximum confidence in its neighborhood. 3) Rank component to find out the first $k$ pixels with the highest confidence. 
 In the feature descriptor generator, the normalization component consumes most of the computation. 
-
-
-Then we design FPGA accelerators specifically for calculating softmax and normalization.
+Then we design specifical FPGA accelerators for softmax and normalization.
 
 \subsection{Optimization of Feature-point Detection}
 \label{sec:softmaxopt}
@@ -25,7 +22,8 @@ Then we design FPGA accelerators specifically for calculating softmax and normal
     % \setlength{\abovecaptionskip}{0cm} 
     % \setlength{\belowcaptionskip}{-0.05cm} 
     \includegraphics[width=0.99\linewidth]{fig/superpoint.pdf}
-    \caption{Optimized feature extraction method based on SuperPoint}
+    \vspace{-8mm}
+    \caption{Optimized feature-point extraction method based on SuperPoint. Instead of calculating the normalized descriptors for all pixels, we only need to calculate the normalized descriptors for the pixels with the highest confidence after ranking.}
     \label{fig:superpoint}
 \end{figure}
 
@@ -35,14 +33,15 @@ Then we design FPGA accelerators specifically for calculating softmax and normal
     % \setlength{\abovecaptionskip}{0cm} 
     % \setlength{\belowcaptionskip}{-0.2cm} 
     \includegraphics[width=0.99\linewidth]{fig/FEaccelerator.pdf}
-    \caption{Hardware Architecture of FE Accelerators}
+    \vspace{-7mm}
+    \caption{Hardware Architecture of FE Accelerators. Fig(a), we design an adder tree together with a comparer tree, so that only the softmax value of the element with the highest confidence is calculated instead of calculating all the 65 softmax values. Fig(b), the adder tree process the partial square sum of 8 input elements once, and we use 32 clocks to finish the square sum of all the 256 elements.}
     \label{fig:FEaccelerator}
 \end{figure}
 
 For feature-point detection, the 65 channels correspond to local, non-overlapping $8 \times 8$ pixel grid areas plus a background channel. 
 After a channel-wise softmax, the background channel is removed, and a $\mathbb{R}^{H_c\times W_c\times64}\Rightarrow \mathbb{R}^{H\times W}$ reshaping is performed. 
-The channel-wise softmax makes the points in different grid areas have equal confidences.
-The tensor of size $\mathbb{R}^{H\times W}$ corresponds to the confidences of the feature points in the input image.
+% The channel-wise softmax makes the points in different grid areas have equal confidences.
+The tensor of size $\mathbb{R}^{H\times W}$ corresponds to the confidences of the feature points in the input image. The higher the confidence, the more likely this point is to be a feature-point.
 
 The standard softmax function is defined as $\sigma (\mathbf {z} )_{i}$ in \Cref{equ:softmax_hard}.
 We optimize the process of softmax that we only take the maximum value of each grid area for subsequent computations, which not only reduces the division operations of softmax but also simplifies the calculation of NMS and Rank.
@@ -51,6 +50,7 @@ The division operation is resource consuming on the FPGA platform.
 Our method can greatly reduce the number of divisions by $64 \times$, making it easy to accelerate softmax operation on FPGA.
 
 \begin{equation}
+    \small
     \sigma (\mathbf {z} )_{i}={\frac {e^{z_{i}}}{\sum _{j=1}^{K}e^{z_{j}}}}
     \Rightarrow
     \frac{1}{\sigma (\mathbf {z} )_{i}}={\frac {\sum _{j=1}^{K}2^{z_{j}}}{2^{z_{i}}}}{\text{ for }}i=1,\dotsc ,64;
@@ -108,12 +108,12 @@ Since we only need to find feature-points without knowing their order, we create
 
 \subsection{Optimization of Descriptors Generation}
 
-The input of the descriptor head sized $\mathbb{R}^{H_c\times W_c\times D}$ is semi-dense descriptor that each $8\times8$ pixel cell has a descriptor. In the original implementation, a bicubic interpolation and normalization yields fine descriptors of size $\mathbb{R}^{H\times W\times D}$. Then, according to the result after ranking, the descriptors corresponding to the k feature points are combined into a list and output. After maximum point softmax, each $8\times8$ cell contains at most one valid feature-point. So we can use semi-dense descriptor as the dense descriptor of the potential feature-point and do not need bicubic interpolation.
+The input of the descriptor head, sized $\mathbb{R}^{H_c\times W_c\times D}$, is semi-dense descriptor that each $8\times8$ pixel cell has a descriptor. In the original implementation of superpoint, a bicubic interpolation and normalization yields fine descriptors of size $\mathbb{R}^{H\times W\times D}$. Then, according to the result after ranking, the descriptors corresponding to the k feature-points are combined into a list and output. After maximum point softmax, each $8\times8$ cell contains at most one valid feature-point. So we can use semi-dense descriptor as the dense descriptor of the potential feature-point and do not need bicubic interpolation.
 
 
 
 
-The number of descriptors that need to be normalized has been reduced from $H\times W$ to $H_c\times W_c$. In addition, we normalize the descriptors after sorting the feature-points, which means we only need to normalize $k$ descriptors. If we set $H=480$, $W=640$ and $k=200$, then the computational complexity of the normalization process will be reduced by $1500\times$. However, $k$ descriptors are not stored in contiguous memory space. We use a data mover to move data from discrete address spaces.
+The number of descriptors that need to be normalized has been reduced from $H\times W$ to $H_c\times W_c$. In addition, we normalize the descriptors after sorting the feature-points, which means we only need to normalize $k$ descriptors. If we set $H=480$, $W=640$ and $k=200$, then the computational complexity of the normalization process will be reduced by $\frac{H \times W}{k}=1536\times$. However, $k$ descriptors are not stored in contiguous memory space. We use a data mover to move data from discrete address spaces.
 
 The architecture of normalization accelerator is illustrated in \Cref{fig:FEaccelerator}(b). The normalization module can read 8 numbers per clock cycle. The normalization process is divided into three stages and requires each descriptor to be read twice. In the first stage, we compute the sum of the squares of the descriptors, which takes 32 clock cycles when $D=256$. Then the reciprocal of square root of sum is computed as the normalization coefficient. In the final stage, the descriptor is read a second time and multiplied by the normalization coefficient.
 

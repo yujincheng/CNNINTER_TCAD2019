@@ -5979,14 +5979,14 @@ between column types.}%
 \setcounter{IEEEbiography}{0}
 
 % photo area size
-\def\@IEEEBIOphotowidth{1.0in}    % width of the biography photo area
-\def\@IEEEBIOphotodepth{1.25in}   % depth (height) of the biography photo area
+\def\@IEEEBIOphotowidth{0.6in}    % width of the biography photo area
+\def\@IEEEBIOphotodepth{0.8in}   % depth (height) of the biography photo area
 % area cleared for photo
-\def\@IEEEBIOhangwidth{1.14in}    % width cleared for the biography photo area
-\def\@IEEEBIOhangdepth{1.25in}    % depth cleared for the biography photo area
+\def\@IEEEBIOhangwidth{0.7in}    % width cleared for the biography photo area
+\def\@IEEEBIOhangdepth{0.8in}    % depth cleared for the biography photo area
                                   % actual depth will be a multiple of 
                                   % \baselineskip, rounded up
-\def\@IEEEBIOskipN{4\baselineskip}% nominal value of the vskip above the biography
+\def\@IEEEBIOskipN{0\baselineskip}% nominal value of the vskip above the biography
 
 \newenvironment{IEEEbiography}[2][]{\normalfont\@IEEEcompsoconly{\sffamily}\footnotesize%
 \unitlength 1in\parskip=0pt\par\parindent 1em\interlinepenalty500%
