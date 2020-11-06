@@ -74,7 +74,7 @@ Since we only need to find feature-points without knowing their order, we create
 
 % \subsection{NMS Optimization}
 
-% Non-maximum suppression(NMS) is applied to the detection to help ensure that the feature-points are evenly distributed throughout the image. 
+% Non-maximum suppression (NMS) is applied to the detection to help ensure that the feature-points are evenly distributed throughout the image. 
 % For each pixel in the original input image, NMS compares the confidence of this pixel with that of the pixels in a square neighborhood whose edge including $\epsilon _{ori}$ pixels. 
 % If the confidence of the target central pixel is not the maximum in its neighbors, this point will be eliminated from the valid feature-points. 
 % The output of the NMS is a list of coordinates and confidences for each feature-point. 
@@ -126,7 +126,7 @@ The architecture of normalization accelerator is illustrated in \Cref{fig:FEacce
 %     \label{fig:gem}
 % \end{figure}
 
-% Figure \ref{fig:gem} shows the data flow of GeM network  ~\cite{gem} for PR. The CNN backbone of GeM is a resnet101 network without the last two layers(pooling and FC). The CNN maps the input image $ I \in \mathbb{R}^{3 \times H \times W}$ to a tensor $\mathcal{X} \in \mathbb{R}^{C \times H_1 \times W_1}$. Here, the channel number $C = 2048$. Then the gem pooling layer pool the tensor into a vector $\mathcal{V} \in \mathbb{R}^{C}$. (To avoid ambiguity, we use "GeM" to represent the whole network and "gem" to represent the pooling layer only.) Finally, the vector is normalized. After that, we use dot product or L2 distance of the vectors to calculate similarity of places. Because feature extraction needs to be real-time and is time consuming, we modify its software utilization and design FPGA accelertor for this process.
+% Figure \ref{fig:gem} shows the data flow of GeM network  ~\cite{gem} for PR. The CNN backbone of GeM is a resnet101 network without the last two layers (pooling and FC). The CNN maps the input image $ I \in \mathbb{R}^{3 \times H \times W}$ to a tensor $\mathcal{X} \in \mathbb{R}^{C \times H_1 \times W_1}$. Here, the channel number $C = 2048$. Then the gem pooling layer pool the tensor into a vector $\mathcal{V} \in \mathbb{R}^{C}$. (To avoid ambiguity, we use "GeM" to represent the whole network and "gem" to represent the pooling layer only.) Finally, the vector is normalized. After that, we use dot product or L2 distance of the vectors to calculate similarity of places. Because feature extraction needs to be real-time and is time consuming, we modify its software utilization and design FPGA accelertor for this process.
 
 % Experiments show that the post processing (gem pooling and normalization) consume nearly twice the time as CNN network does. After optimization, we can reduce time to 1/? of that of origin.
 

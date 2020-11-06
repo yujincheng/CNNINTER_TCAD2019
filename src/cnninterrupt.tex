@@ -46,7 +46,12 @@
 	\label{fig:instructions}
 \end{figure}
 
-In this section, we introduce our \textbf{virtual-instruction-based} method (VI method) to enable accelerator interrupt. Compared with the CPU-Like and Layer-by-Layer interrupt method, virtual-instruction-based method minimizes the interrupt response latency and the extra cost of the interrupt.
+In this section, we introduce our \textbf{virtual-instruction-based} method (VI method) to enable accelerator interrupt. 
+\textcolor{blue}{
+Compared with the CPU-Like and Layer-by-Layer interrupt method, virtual-instruction-based method enables interrupt inside each layer to avoid high interrupt response latency and only transfers the minimum amount of data for backup and restore to lower the extra cost of the interrupt.
+}
+
+
 % In this section, we introduce our virtual-instruction-based method to enable accelerator interrupt. To minimize the interrupt response latency and extra cost for interrupt, we propose the virtual-instruction-based accelerator interrupt method.
 
 \subsection{ Instruction Driven Accelerator }
@@ -57,7 +62,14 @@ The LOAD instruction moves input featuremaps and weights from DDR to on-chip mem
 
 Each CALC  instruction,  including CALC\_I and CALC\_F, processes the convolution according to the hardware parallelism with $Para_{height}$ lines from $ Para_{in} $ input channels to $ Para_{out}$ output channels. $Para_{height}$, $ Para_{in} $, and $ Para_{out} $ are the parallelism along the height, input channel and output channel dimensions, which is determined by the hardware and original ISA.
 
-\Cref{fig:singlesave}(a) illustrates the operation of CALC instructions. The convolution of the last $ Para_{in} $ input channels is CALC\_F, and the convolutions for the former input channels are CALC\_I. The CALC\_F and the CALC\_I instructions for the same output channels, as well as the LOAD instructions for corresponding input featuremaps and weights, are considered as a \textbf{CalcBlob}  (\Cref{sec:exampleVirtual}(c) lists an example for CalcBlob). In each CalcBlob, there is a LOAD\_W instruction for the corresponding weights. However, as the input data can be shared across different CalcBlobs, some CalcBlobs do not have  LOAD\_D instruction. 
+\Cref{fig:singlesave}(a) illustrates the operation of CALC instructions. The convolution of the last $ Para_{in} $ input channels is CALC\_F, and the convolutions for the former input channels are CALC\_I. The CALC\_F and the CALC\_I instructions for the same output channels, as well as the LOAD instructions for corresponding input featuremaps and weights, are considered as a \textbf{CalcBlob}  (\Cref{sec:exampleVirtual}(c) lists an example for CalcBlob). In each CalcBlob, there is a LOAD\_W instruction for the corresponding weights. 
+\textcolor{blue}{
+However, when there are only few input channels (such $Ch_{in} = Para_{in}$), all input data required by a CalcBlob can be fetched to the chip by a single LOAD\_D. 
+During the CalbBlob execution, the input buffer remains unchanged. 
+For the next CalcBlob, since the required input data is exactly the same, there is no need to execute a LOAD\_D.
+Thus, some CalcBlobs do not have  LOAD\_D instruction.
+}
+
 
 % Each CALC  instruction,  including CALC\_I and CALC\_F processes the convolution according to the hardware parallelism.
 % Each CALC instruction, including CALC\_I and CALC\_F processes the convolution from input feature of the hardware input parallelism ($Para_{in}$) to the output feature of the hardware output parallelism ($ Para_{out}$), as illustrated in \Cref{fig:singlesave}(a). The convolution of the last input channels is CALC\_F, and the convolutions for the former input channels are CALC\_I. The CALC\_F and the CALC\_I instructions to generate the output channels, as well as the LOAD instructions for corresponding input featuremaps and weights are considered as a \textbf{CalcBlob}. Besides the convolution, some other operations like pooling is also represented in the CALC\_F instruction.
@@ -140,7 +152,7 @@ Virtual LOAD instructions also need to restore the intermediate results from par
 	\includegraphics[width=0.99\textwidth]{fig/singlesave.pdf} 	
 	\vspace{-1mm} 
     \caption{
-		Illustration of scheduling on the CNN accelerator. Fig(a), a CalcBlob is the instructions that calculate the final results of $Para_{out}$ output channels from all input channels (the set of solid arrows). Fig(b), one SAVE instruction is only responsible for saving the results of one CalcBlob. Fig(c), one SAVE instruction is responsible for saving the results of several CalcBlobs. Fig(d) and Fig(e) illustrate the accelerator interrupt of Fig(b) and Fig(c). The latency($t_{latency}$) and extra cost ($t_{cost}$) are labelled in Fig(e).
+		Illustration of scheduling on the CNN accelerator. Fig(a), a CalcBlob is the instructions that calculate the final results of $Para_{out}$ output channels from all input channels (the set of solid arrows). Fig(b), one SAVE instruction is only responsible for saving the results of one CalcBlob. Fig(c), one SAVE instruction is responsible for saving the results of several CalcBlobs. Fig(d) and Fig(e) illustrate the accelerator interrupt of Fig(b) and Fig(c). The latency ($t_{latency}$) and extra cost ($t_{cost}$) are labelled in Fig(e).
     }
 	\label{fig:singlesave}
 \end{figure*}
@@ -181,7 +193,7 @@ In order to minimize the cost of interrupt, we make the CNN interruptible after 
 
 \begin{figure*}[t]
 	\centering
-	\subfloat[$t_1$ for Layer-By-Layer method.]{
+	\subfloat[$t_1$ for Layer-by-Layer method.]{
 		\begin{minipage}[t]{0.45\linewidth}
 			\centering
 	\includegraphics[width=0.99\linewidth]{fig/t1all.pdf}
@@ -194,7 +206,7 @@ In order to minimize the cost of interrupt, we make the CNN interruptible after 
 		\end{minipage}%
 	}
 	\vspace{-1mm} 
-	\caption{ An example of waiting time for finishing the current operation ($t_1$) in a convolution layer. Compared with the Layer-By-Layer method, the waiting time of our Virtual-Instruction method is reduced to $1.6\%$ in this example. The reduction in latency is related to the height ($H$) of the input featuremaps.  }
+	\caption{ An example of waiting time for finishing the current operation ($t_1$) in a convolution layer. Compared with the Layer-by-Layer method, the waiting time of our Virtual-Instruction method is reduced to $1.6\%$ in this example. The reduction in latency is related to the height ($H$) of the input featuremaps.  }
 	\label{fig:t1example}
 \end{figure*}
 
@@ -205,15 +217,15 @@ In order to minimize the cost of interrupt, we make the CNN interruptible after 
 In this subsection, we quantitatively analyze the impact of interruptible position on interrupt respond latency. 
 As introduced in \Cref{sec:instrAcc}, each CALC  instruction processes the convolution according to the hardware parallelism with $Para_{height}$ lines from $ Para_{in} $ input channels to $ Para_{out}$ output channels. 
 We here note the computation of a CALC instruction an $instruction pulse$, or $pulse$.
-The compuatation time of each pulse is related to the hardware architecture and the width of the convolution layer. The larger the width, the larger the workload of a single calculation instruction, and thus the CALC instruction consumes more time. We note the time consumption of a pulse as a function of the featuremap width, $t_{pulse}$:
+The computation time of each pulse is related to the hardware architecture and the width of the convolution layer. The larger the width, the larger the workload of a single calculation instruction, and thus the CALC instruction consumes more time. We note the time consumption of a pulse as a function of the featuremap width, $t_{pulse}$:
 
 \begin{equation}
-	t_{pulse}(W) = t_{Calc\_Hardware} \times W
+	t_{pulse}(W) = t_{hw} \times W
 \end{equation}
 
-$t_{Calc\_Hardware}$ indicates the time for hardware to produce the intermediate results of one pixel, which is defined by the hardware design and the clock frequency. $W$ is the width of the featuremaps, indicating the workload of the instruction.
+$t_{hw}$ indicates the time for hardware to produce the intermediate results of one pixel, which is defined by the hardware design and the clock frequency. $W$ is the width of the featuremaps, indicating the workload of the instruction.
 
-\Cref{fig:t1example}(a) shows the worst case of waiting for finishing the current operation of the Layer-By-Layer interrupt method. The worst case is that the interrupt request occurs at the beginning of the layer. In this case, the accelerator will wait until finishing the whole layer. The calculation of the whole layer consists of $N_{pulse\_layer}$ successive CALC instructions. We note the worst time of waiting to finish the current layer, which is the total time of these pulses, as $t_{1\_layer}$.
+\Cref{fig:t1example}(a) shows the worst case of waiting for finishing the current operation of the Layer-by-Layer interrupt method. The worst case is that the interrupt request occurs at the beginning of the layer. In this case, the accelerator will wait until finishing the whole layer. The calculation of the whole layer consists of $N_{pulse\_layer}$ successive CALC instructions. We note the worst time of waiting to finish the current layer, which is the total time of these pulses, as $t_{1\_layer}$.
 
 \begin{equation}
 	\small
@@ -238,7 +250,8 @@ t_{1\_VI} = N_{pulse\_VI} \times t_{pulse}(W)
 \end{equation}
 
 
-Because our Virtual-Instruction method (VI method) only interrupts the execution after CALC\_F and SAVE, there is no extra data transfer for the intermediate results. The backup operation in the VI method only transfers the final results, which are also transfered to DDR with the SAVE instructions in the Layer-By-Layer method. Experiment results in, which will be given in \Cref{sec:expt1t2}, show that the data transfer time for the final results is much less than the calculation time (less than 20\%), in both the Layer-By-Layer method and the VI method. Thus the latency to respond to the interrupt request ($t_{latency}$) is mainly determined by the time of finishing the current operation.
+Because our Virtual-Instruction method (VI method) only interrupts the execution after CALC\_F and SAVE, there is no extra data transfer for the intermediate results. The backup operation in the VI method only transfers the final results, which are also transfered to DDR with the SAVE instructions in the Layer-by-Layer method. 
+Experimental results, which will be given in \Cref{sec:expt1t2}, show that the data transfer time for the final results is much less than the calculation time (less than 20\%), in both the Layer-by-Layer method and the VI method. Thus the latency to respond to the interrupt request ($t_{latency}$) is mainly determined by the time of finishing the current operation.
 
 As the interrupt request is unpredictable, we model the interrupt location as evenly distributed within each layer. Thus the average interrupt latency is $\bar{t}_{latency} $.
 
@@ -246,7 +259,7 @@ As the interrupt request is unpredictable, we model the interrupt location as ev
 	\bar{t}_{latency}  \simeq \frac{1}{2} \times t_{1}
 \end{equation}
 
-Compared with the Layer-By-Layer method, the latency of our method is reduced to $R_l$.
+Compared with the Layer-by-Layer method, the latency of our method is reduced to $R_l$.
 
 \begin{equation}
 	\small
@@ -257,7 +270,7 @@ Compared with the Layer-By-Layer method, the latency of our method is reduced to
 	\end{split}
 \end{equation}
 
-$\bar{t}_{latency\_VI}$ and $\bar{t}_{latency\_VI}$ are the average interrupt latency of the Virtual-Instruction method and the Layer-By-Layer method. The effect of latency reduction of the VI method is related to the number of output channels ($Ch_{out}$) and featuremap height ($H$). The larger the featuremaps output channels and the height, the better latency reduction result can be achieved.
+$\bar{t}_{latency\_VI}$ and $\bar{t}_{latency\_VI}$ are the average interrupt latency of the Virtual-Instruction method and the Layer-by-Layer method. The effect of latency reduction of the VI method is related to the number of output channels ($Ch_{out}$) and featuremap height ($H$). The larger the featuremaps output channels and the height, the better latency reduction result can be achieved.
 
 An example of a convolution layer with a typical size in CNN is given in \Cref{fig:t1example}. The parameters are labelled in the figures. The latency can be reduced to $R_t = 8/480 =1.6\%$.
 
@@ -300,6 +313,21 @@ For Multiple Blob Save, virtual SAVE and LOAD instructions are generated after t
 	}
 	\label{fig:IAU}
 \end{figure}
+
+\begin{figure}[t]
+	\centering
+    % \vspace{-0.1cm} 
+    % \setlength{\abovecaptionskip}{0cm} 
+    % \setlength{\belowcaptionskip}{-0.4cm} 
+	\includegraphics[width=0.8\linewidth]{fig/nestedinter.pdf}
+	\vspace{-0mm}
+	\caption{
+		\textcolor{blue}{The state transition diagram for different task arrangement order.
+		}
+	}
+	\label{fig:nestedinter}
+\end{figure}
+
 \begin{figure*}[t]
 	\centering
     % \vspace{-0.1cm} 
@@ -321,6 +349,20 @@ InstrAddr records the address to fetch the instructions of the corresponding tas
 SaveID, SaveAddr, and SaveLength record the status when an interrupt occurs. 
 Subsequent not-virtual SAVE instructions will be modified according to the recorded interrupt status (SaveID, SaveAddr, and SaveLength), to avoid duplicate output data transfer.
 % An example of the instruction modification will be given at \Cref{sec:exampleVirtual}.
+
+\textcolor{blue}{
+It is easy to support nested interrupt use IAU.
+There are three kinds of tasks in IAU, the now-running task (NRT), the highest priority task (HPT), and current stalled tasks (CST).
+The state transition of two examples are illustrated in \Cref{fig:nestedinter}.
+If $NRT=HPT$, the IAU process normally the task, like "Run Task2" at the beginning of \Cref{fig:nestedinter}(a,b).
+If a new high-priority task comes, HPT is set to the high-priority, like "Task 0 Comes" at \Cref{fig:nestedinter}(a). Then, IAU backups the running status of NRT, and store the NRT to CST. And then running the high-priority task, like "Run Task 0" in at \Cref{fig:nestedinter}(a).
+If a new task with lower priority than NRT. It is directly stored to CST, like "Task 1 Comes" at \Cref{fig:nestedinter}(a).
+When NRT finishes, the highest priority task is poped from CST to run/resume, like "Run Taks1" in \Cref{fig:nestedinter}(a) and "Resume Task2" in \Cref{fig:nestedinter}(b).
+In \Cref{fig:IAU}, the IAU can support 4 priorities. 
+However, there is only one NN task in each priority. 
+If we want to support more priorities, the Instruction Arrangement Unit (IAU) needs more hardware resources to expand Status Pool.
+Once the number of max supported priorities is determined and programmed on the hardware, it cannot be modified at runtime.
+}
 
 
 \subsection{Example of Virtual Instruction}
