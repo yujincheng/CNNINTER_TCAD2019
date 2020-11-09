@@ -9,7 +9,7 @@ The SuperPoint backbone maps the input image $I\in \mathbb{R}^{H\times W}$ to a 
 We optimize the software data flow of the components above, making them less computationally complex and more friendly to hardware. 
 
 % As mentioned in \Cref{sec:relate}, there are two steps in the FE method: 1) feature-point detection and 2) feature descriptors generation. 
-In SuperPoint  ~\cite{detone2018superpoint}, there are three components in the feature-point detector: 1) Softmax to generate confidence for each pixel. 2) Non-Maximum Suppression (NMS) to find the pixels with maximum confidence in its neighborhood. 3) Rank component to find out the first $k$ pixels with the highest confidence. 
+In SuperPoint~\cite{detone2018superpoint}, there are three components in the feature-point detector: 1) Softmax to generate confidence for each pixel. 2) Non-Maximum Suppression (NMS) to find the pixels with maximum confidence in its neighborhood. 3) Rank component to find out the first $k$ pixels with the highest confidence. 
 In the feature descriptor generator, the normalization component consumes most of the computation. 
 Then we design specifical FPGA accelerators for softmax and normalization.
 
@@ -17,25 +17,25 @@ Then we design specifical FPGA accelerators for softmax and normalization.
 \label{sec:softmaxopt}
 
 \begin{figure}[t]
-    \centering  
-    % \vspace{-0.1cm} 
-    % \setlength{\abovecaptionskip}{0cm} 
-    % \setlength{\belowcaptionskip}{-0.05cm} 
-    \includegraphics[width=0.99\linewidth]{fig/superpoint.pdf}
-    \vspace{-8mm}
-    \caption{Optimized feature-point extraction method based on SuperPoint. Instead of calculating the normalized descriptors for all pixels, we only need to calculate the normalized descriptors for the pixels with the highest confidence after ranking.}
-    \label{fig:superpoint}
+ \centering 
+ % \vspace{-0.1cm} 
+ % \setlength{\abovecaptionskip}{0cm} 
+ % \setlength{\belowcaptionskip}{-0.05cm} 
+ \includegraphics[width=0.99\linewidth]{fig/superpoint.pdf}
+ \vspace{-8mm}
+ \caption{Optimized feature-point extraction method based on SuperPoint. Instead of calculating the normalized descriptors for all pixels, we only need to calculate the normalized descriptors for the pixels with the highest confidence after ranking.}
+ \label{fig:superpoint}
 \end{figure}
 
 \begin{figure}[t]
-    \centering  
-    % \vspace{-0.1cm} 
-    % \setlength{\abovecaptionskip}{0cm} 
-    % \setlength{\belowcaptionskip}{-0.2cm} 
-    \includegraphics[width=0.99\linewidth]{fig/FEaccelerator.pdf}
-    \vspace{-7mm}
-    \caption{Hardware Architecture of FE Accelerators. Fig(a), we design an adder tree together with a comparer tree, so that only the softmax value of the element with the highest confidence is calculated instead of calculating all the 65 softmax values. Fig(b), the adder tree process the partial square sum of 8 input elements once, and we use 32 clocks to finish the square sum of all the 256 elements.}
-    \label{fig:FEaccelerator}
+ \centering 
+ % \vspace{-0.1cm} 
+ % \setlength{\abovecaptionskip}{0cm} 
+ % \setlength{\belowcaptionskip}{-0.2cm} 
+ \includegraphics[width=0.99\linewidth]{fig/FEaccelerator.pdf}
+ \vspace{-7mm}
+ \caption{Hardware Architecture of FE Accelerators. Fig(a), we design an adder tree together with a comparer tree, so that only the softmax value of the element with the highest confidence is calculated instead of calculating all the 65 softmax values. Fig(b), the adder tree process the partial square sum of 8 input elements once, and we use 32 clocks to finish the square sum of all the 256 elements.}
+ \label{fig:FEaccelerator}
 \end{figure}
 
 For feature-point detection, the 65 channels correspond to local, non-overlapping $8 \times 8$ pixel grid areas plus a background channel. 
@@ -50,11 +50,11 @@ The division operation is resource consuming on the FPGA platform.
 Our method can greatly reduce the number of divisions by $64 \times$, making it easy to accelerate softmax operation on FPGA.
 
 \begin{equation}
-    \small
-    \sigma (\mathbf {z} )_{i}={\frac {e^{z_{i}}}{\sum _{j=1}^{K}e^{z_{j}}}}
-    \Rightarrow
-    \frac{1}{\sigma (\mathbf {z} )_{i}}={\frac {\sum _{j=1}^{K}2^{z_{j}}}{2^{z_{i}}}}{\text{ for }}i=1,\dotsc ,64;
-    \label{equ:softmax_hard}
+ \small
+ \sigma (\mathbf {z} )_{i}={\frac {e^{z_{i}}}{\sum _{j=1}^{K}e^{z_{j}}}}
+ \Rightarrow
+ \frac{1}{\sigma (\mathbf {z} )_{i}}={\frac {\sum _{j=1}^{K}2^{z_{j}}}{2^{z_{i}}}}{\text{ for }}i=1,\dotsc ,64;
+ \label{equ:softmax_hard}
 \end{equation}
 
 Since the results of the softmax function are all positive, we can calculate the reciprocal of the softmax function ($\frac{1}{\sigma (\mathbf {z} )_{i}}$) in \Cref{equ:softmax_hard} as the normalized confidence, without affecting the results of the NMS and ranking process. We quantize the output feature map of CNN to 8-bit fixed-point number, i.e each $z_i$ in \Cref{equ:softmax_hard} is a 8-bit fixed-point number. We change the base of the power from $e$ to $2$ to make it more hardware friendly. Since the divisor is a power of $2$, we can also implement division by shift operation.
@@ -69,7 +69,7 @@ Since the softmax optimization already gives the pixel with maximum confidence o
 The total number of comparisons in NMS is reduced by $640\times$.
 
 The ranking operation is to find out the top $k$ feature-points with maximum confidence after NMS. 
-Since we only need to find feature-points without knowing their order, we create a heap of size $k$ to find the $k$ feature-points instead of quick sort ~\cite{Niu2012Top}.
+Since we only need to find feature-points without knowing their order, we create a heap of size $k$ to find the $k$ feature-points instead of quick sort~\cite{Niu2012Top}.
 
 
 % \subsection{NMS Optimization}
@@ -93,15 +93,15 @@ Since we only need to find feature-points without knowing their order, we create
 % There are $N_{nms}$ valid points after NMS. To sort all these $N_{nms}$ points, the time complexity is defined as:
 
 % \begin{equation}
-    % C_{sort} = O(N_{nms} \cdot log(N_{nms}))
-    % \label{equ:csort}
+ % C_{sort} = O(N_{nms} \cdot log(N_{nms}))
+ % \label{equ:csort}
 % \end{equation}
 
 % We create a heap of size $k$ and then look for the $k$ feature-points with the highest confidence. We do not compute the order of these $k$ points. The time complexity of the optimized ranking method is:
 
 % \begin{equation}
-    % C_{heap} = O(N_{nms} \cdot log(k))
-    % \label{equ:optsort}
+ % C_{heap} = O(N_{nms} \cdot log(k))
+ % \label{equ:optsort}
 % \end{equation}
 
 % In our expetiments, $N_{nms} \approx 2000$ and $k = 200$. The number of comparisons is reduced by $1.4\times$.
@@ -120,13 +120,13 @@ The architecture of normalization accelerator is illustrated in \Cref{fig:FEacce
 % \subsection{Optimization for PR Post-Processing}
 
 % \begin{figure}[t]
-%     \centering
-%     \includegraphics[width=1\linewidth]{fig/pr.eps}
-%     \caption{The architecture of GeM network}
-%     \label{fig:gem}
+% \centering
+% \includegraphics[width=1\linewidth]{fig/pr.eps}
+% \caption{The architecture of GeM network}
+% \label{fig:gem}
 % \end{figure}
 
-% Figure \ref{fig:gem} shows the data flow of GeM network  ~\cite{gem} for PR. The CNN backbone of GeM is a resnet101 network without the last two layers (pooling and FC). The CNN maps the input image $ I \in \mathbb{R}^{3 \times H \times W}$ to a tensor $\mathcal{X} \in \mathbb{R}^{C \times H_1 \times W_1}$. Here, the channel number $C = 2048$. Then the gem pooling layer pool the tensor into a vector $\mathcal{V} \in \mathbb{R}^{C}$. (To avoid ambiguity, we use "GeM" to represent the whole network and "gem" to represent the pooling layer only.) Finally, the vector is normalized. After that, we use dot product or L2 distance of the vectors to calculate similarity of places. Because feature extraction needs to be real-time and is time consuming, we modify its software utilization and design FPGA accelertor for this process.
+% Figure \ref{fig:gem} shows the data flow of GeM network~\cite{gem} for PR. The CNN backbone of GeM is a resnet101 network without the last two layers (pooling and FC). The CNN maps the input image $ I \in \mathbb{R}^{3 \times H \times W}$ to a tensor $\mathcal{X} \in \mathbb{R}^{C \times H_1 \times W_1}$. Here, the channel number $C = 2048$. Then the gem pooling layer pool the tensor into a vector $\mathcal{V} \in \mathbb{R}^{C}$. (To avoid ambiguity, we use "GeM" to represent the whole network and "gem" to represent the pooling layer only.) Finally, the vector is normalized. After that, we use dot product or L2 distance of the vectors to calculate similarity of places. Because feature extraction needs to be real-time and is time consuming, we modify its software utilization and design FPGA accelertor for this process.
 
 % Experiments show that the post processing (gem pooling and normalization) consume nearly twice the time as CNN network does. After optimization, we can reduce time to 1/? of that of origin.
 
@@ -135,7 +135,7 @@ The architecture of normalization accelerator is illustrated in \Cref{fig:FEacce
 % The element of the vector $\mathcal{V}$ is calculated by
 
 % \begin{equation}
-%     \mathcal{V}_i = (\sum_{x \in \mathcal{C}_i} x^p)^{1/p}, i=1, 2, ..., 2048.
+% \mathcal{V}_i = (\sum_{x \in \mathcal{C}_i} x^p)^{1/p}, i=1, 2, ..., 2048.
 % \end{equation}
 
 % Here, the parameter $p$ is learned by back propagation and is set to 2.9? in original paper. To make it friendly for hardware computation, we change it to $p=3$. In this way, the power computation can be converted to multiplication computation. This will save a lot of time and calculation resources on FPGA without loss of accuracy. We notice that the channels are independent with each other, so it's convenient to do parallel computation on FPGA. With Vivado HLS tool, we design an IP core for gem pooling and efficiently reduce time.

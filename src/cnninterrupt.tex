@@ -5,8 +5,8 @@
 % \begin{figure*}[t]
 % 	\centering
 % 	\includegraphics[width=0.99\linewidth]{fig/interDPR.eps}
-% 	\caption{Interruption to solve the hardware resources conflicts.  When a high-priority task (FE) is started before the low-priority task (PR) is completed, the CNN accelerator backs up the status of PR to memory, and processes the FE task. When the high-priority task is completed, the low-priority task resumes and continues.
-%     }
+% 	\caption{Interruption to solve the hardware resources conflicts. When a high-priority task (FE) is started before the low-priority task (PR) is completed, the CNN accelerator backs up the status of PR to memory, and processes the FE task. When the high-priority task is completed, the low-priority task resumes and continues.
+% }
 % 	\label{fig:interDPR}
 % \end{figure*}
 
@@ -21,34 +21,34 @@
 	\hline
 	\multicolumn{1}{|c|}{Category} & \multicolumn{1}{c|}{Type} & \multicolumn{1}{c|}{Description} & \multicolumn{1}{c|}{Address 1} & \multicolumn{1}{c|}{Address 2} & \multicolumn{1}{c|}{Address 3} & \multicolumn{1}{c||}{Workload} & \multicolumn{1}{c|}{Backup} & \multicolumn{1}{c|}{Recovery} \\
 	\hline
-	\multirow{2}[4]{*}{LOAD} & LOAD\_W & Load weights/bias from DDR to on chip weight buffer. & Off-chip Addr & Weights-buffer Addr & -     & Data  Length & -     & Weight / Inputdata \\
-	\cline{2-9}\multicolumn{1}{|c|}{} & LOAD\_D & Load input data from DDR to on-chip data buffer. & Off-chip Addr & Data-buffer Addr & -     & Data  Length & -     & Weight / Inputdata \\
+	\multirow{2}[4]{*}{LOAD} & LOAD\_W & Load weights/bias from DDR to on chip weight buffer. & Off-chip Addr & Weights-buffer Addr & - & Data Length & - & Weight / Inputdata \\
+	\cline{2-9}\multicolumn{1}{|c|}{} & LOAD\_D & Load input data from DDR to on-chip data buffer. & Off-chip Addr & Data-buffer Addr & - & Data Length & - & Weight / Inputdata \\
 	\hline
-	\multirow{2}[4]{*}{CALC} & CALC\_I & Calculate intermediate results (from partial input channels) for some output channels from partial  input channels. & Input  Data Addr & Intermediate Data Addr & Weight Addr & Calc Size & Previous final results / Intermediate data  & Weight / Inputdata /  Intermediate data \\
-	\cline{2-9}\multicolumn{1}{|c|}{} & CALC\_F & Calculate the results for some output channels from all input channels. The pooling, bias-adding and element-wise operations are operated in this instructions. & Input  Data Addr & Output  Data Addr & Weight Addr & Calc Size & Final results & Inputdata \\
+	\multirow{2}[4]{*}{CALC} & CALC\_I & Calculate intermediate results (from partial input channels) for some output channels from partial input channels. & Input Data Addr & Intermediate Data Addr & Weight Addr & Calc Size & Previous final results / Intermediate data & Weight / Inputdata / Intermediate data \\
+	\cline{2-9}\multicolumn{1}{|c|}{} & CALC\_F & Calculate the results for some output channels from all input channels. The pooling, bias-adding and element-wise operations are operated in this instructions. & Input Data Addr & Output Data Addr & Weight Addr & Calc Size & Final results & Inputdata \\
 	\hline
-	SAVE  & SAVE  & Save the results from on-chip data buffer to DDR. & Off-chip Addr & Data-buffer Addr & -     & Data  Length & -     & Inputdata \\
+	SAVE & SAVE & Save the results from on-chip data buffer to DDR. & Off-chip Addr & Data-buffer Addr & - & Data Length & - & Inputdata \\
 	\hline
 	\end{tabular}%
 	
 	\label{tab:instr}%
-  \end{table*}%
+ \end{table*}%
 
 
 \begin{figure}[t]
 	\centering
-    % \vspace{-0.1cm} 
-    % \setlength{\abovecaptionskip}{0cm} 
-    % \setlength{\belowcaptionskip}{-0.6cm} 
+ % \vspace{-0.1cm} 
+ % \setlength{\abovecaptionskip}{0cm} 
+ % \setlength{\belowcaptionskip}{-0.6cm} 
 	\includegraphics[width=0.99\linewidth]{fig/instructions.pdf}
 	\vspace{-6mm}
 	\caption{Fig(a), Original ISA. Fig(b), Virtual-Instruction ISA (VI-ISA).}
 	\label{fig:instructions}
 \end{figure}
 
-In this section, we introduce our \textbf{virtual-instruction-based} method (VI method) to enable accelerator interrupt. 
+In this section, we introduce our \textbf{virtual-instruction-based} method (\textit{VI} method) to enable accelerator interrupt. 
 \textcolor{blue}{
-Compared with the CPU-Like and Layer-by-Layer interrupt method, virtual-instruction-based method enables interrupt inside each layer to avoid high interrupt response latency and only transfers the minimum amount of data for backup and restore to lower the extra cost of the interrupt.
+Compared with the CPU-Like and Layer-by-Layer interrupt method, virtual-instruction-based method enables interrupt inside each layer to avoid high interrupt response latency and only transfers the minimum amount of data for backup and restore, to lower the extra cost of the interrupt.
 }
 
 
@@ -56,25 +56,25 @@ Compared with the CPU-Like and Layer-by-Layer interrupt method, virtual-instruct
 
 \subsection{ Instruction Driven Accelerator }
 \label{sec:instrAcc}
-There are three categories of instruction in the instruction-driven accelerator: LOAD, CALC, and SAVE  ~\cite{guo2017angel,qiu2016going,yu2018instruction}. The instruction description of each kind of instruction is listed in \Cref{fig:instructions}(a) and \Cref{tab:instr}.
+There are three categories of instruction in the instruction-driven accelerator: LOAD, CALC, and SAVE~\cite{guo2017angel,qiu2016going,yu2018instruction}. The instruction description of each kind of instruction is listed in \Cref{fig:instructions}(a) and \Cref{tab:instr}.
 
 The LOAD instruction moves input featuremaps and weights from DDR to on-chip memory. The SAVE instruction moves the calculated output features from on-chip memory to DDR. 
 
-Each CALC  instruction,  including CALC\_I and CALC\_F, processes the convolution according to the hardware parallelism with $Para_{height}$ lines from $ Para_{in} $ input channels to $ Para_{out}$ output channels. $Para_{height}$, $ Para_{in} $, and $ Para_{out} $ are the parallelism along the height, input channel and output channel dimensions, which is determined by the hardware and original ISA.
+Each CALC instruction, including CALC\_I and CALC\_F, processes the convolution according to the hardware parallelism with $P_{h}$ lines from $ P_{in} $ input channels to $ P_{out}$ output channels. $P_{h}$, $ P_{in} $, and $ P_{out} $ are the parallelism along the height, input channel and output channel dimensions, which is determined by the hardware and original ISA.
 
-\Cref{fig:singlesave}(a) illustrates the operation of CALC instructions. The convolution of the last $ Para_{in} $ input channels is CALC\_F, and the convolutions for the former input channels are CALC\_I. The CALC\_F and the CALC\_I instructions for the same output channels, as well as the LOAD instructions for corresponding input featuremaps and weights, are considered as a \textbf{CalcBlob}  (\Cref{sec:exampleVirtual}(c) lists an example for CalcBlob). In each CalcBlob, there is a LOAD\_W instruction for the corresponding weights. 
+\Cref{fig:singlesave}(a) illustrates the operation of CALC instructions. The convolution of the last $ P_{in} $ input channels is CALC\_F, and the convolutions for the former input channels are CALC\_I. The CALC\_F and the CALC\_I instructions for the same output channels, as well as the LOAD instructions for corresponding input featuremaps and weights, are considered as a \textbf{CalcBlob} (\Cref{sec:exampleVirtual}(c) lists an example for CalcBlob). In each CalcBlob, there is a LOAD\_W instruction for the corresponding weights. 
 \textcolor{blue}{
-However, when there are only few input channels (such $Ch_{in} = Para_{in}$), all input data required by a CalcBlob can be fetched to the chip by a single LOAD\_D. 
+However, when there are only few input channels (such $Ch_{in} = P_{in}$), all input data required by a CalcBlob can be fetched to the chip by a single LOAD\_D. 
 During the CalbBlob execution, the input buffer remains unchanged. 
 For the next CalcBlob, since the required input data is exactly the same, there is no need to execute a LOAD\_D.
-Thus, some CalcBlobs do not have  LOAD\_D instruction.
+Thus, some CalcBlobs do not have LOAD\_D instruction.
 }
 
 
-% Each CALC  instruction,  including CALC\_I and CALC\_F processes the convolution according to the hardware parallelism.
-% Each CALC instruction, including CALC\_I and CALC\_F processes the convolution from input feature of the hardware input parallelism ($Para_{in}$) to the output feature of the hardware output parallelism ($ Para_{out}$), as illustrated in \Cref{fig:singlesave}(a). The convolution of the last input channels is CALC\_F, and the convolutions for the former input channels are CALC\_I. The CALC\_F and the CALC\_I instructions to generate the output channels, as well as the LOAD instructions for corresponding input featuremaps and weights are considered as a \textbf{CalcBlob}. Besides the convolution, some other operations like pooling is also represented in the CALC\_F instruction.
+% Each CALC instruction, including CALC\_I and CALC\_F processes the convolution according to the hardware parallelism.
+% Each CALC instruction, including CALC\_I and CALC\_F processes the convolution from input feature of the hardware input parallelism ($P_{in}$) to the output feature of the hardware output parallelism ($ P_{out}$), as illustrated in \Cref{fig:singlesave}(a). The convolution of the last input channels is CALC\_F, and the convolutions for the former input channels are CALC\_I. The CALC\_F and the CALC\_I instructions to generate the output channels, as well as the LOAD instructions for corresponding input featuremaps and weights are considered as a \textbf{CalcBlob}. Besides the convolution, some other operations like pooling is also represented in the CALC\_F instruction.
 
-% Considerring to the limited on-chip data memory, the on-chip data buffer may not able to store all of the input and output featuremaps. To solve this problem, a CALC instruction is not designed for the entile featuremap, yet servel lines of the featuremap. The parallelism along the height dimension of a CALC instruction is denoted as  
+% Considerring to the limited on-chip data memory, the on-chip data buffer may not able to store all of the input and output featuremaps. To solve this problem, a CALC instruction is not designed for the entile featuremap, yet servel lines of the featuremap. The parallelism along the height dimension of a CALC instruction is denoted as 
 
 
 
@@ -86,24 +86,34 @@ Thus, some CalcBlobs do not have  LOAD\_D instruction.
 \label{sec:howinter}
 
 As illustrated in \Cref{fig:singlesave}(e),there are four stages to handle interrupt, including: (1) Time for finishing the current operation, $t1$. (2) Time to backup, $t2$. (3) Time for the high-priority task, $t3$. (4) Time to restore the low-priority task ,$t4$. 
-The latency to respond the interrupt is $t_{latency} = t_1+t_2$. The extra cost for interrupt is $t_{cost}=t_2+t_4$. For the instruction flow illustrated in \Cref{fig:singlesave}(c), the interrupt stages are shown in \Cref{fig:singlesave}(e).
+The latency to respond the interrupt is:
+\begin{equation}
+	t_{latency} = t_1+t_2
+	\label{equ:latency}
+\end{equation}
+The extra cost for interrupt is: 
+\begin{equation}
+	t_{cost}=t_2+t_4
+	\label{equ:cost}
+\end{equation}	
+For the instruction flow illustrated in \Cref{fig:singlesave}(c), the interrupt stages are shown in \Cref{fig:singlesave}(e).
 There are different methods to implement interrupt in CNN accelerators.
 
 \textbf{CPU-Like.}
-When an interrupt request occurs in CPU, CPU backs up all the on-chip registers to DDR. However, there are only tens of registers in CPU, and the volume of the backed-up data is less than 1 KB  ~\cite{furber2000arm}. In CNN accelerators, there are hundreds of KB $\sim$ several MB on-chip caches  ~\cite{qiu2016going, guo2017angel} to store input featuremaps or weights. 
+When an interrupt request occurs in CPU, CPU backs up all the on-chip registers to DDR. However, there are only tens of registers in CPU, and the volume of the backed-up data is less than 1 KB~\cite{furber2000arm}. In CNN accelerators, there are hundreds of KB $\sim$ several MB on-chip caches~\cite{qiu2016going, guo2017angel} to store input featuremaps or weights. 
 % If all on-chip caches are backed-up/recovered, the cost of data transfer in the accelerator is much higher than that of CPU. 
 Thus, the extra data transfer increases both the interrupt response latency ($t_{latency}$) and the additional cost ($t_{cost}$).
 
-\textbf{Layer-by-layer.}
-Most accelerators run the CNN layer by layer  ~\cite{qiu2016going,guo2017angel}. 
+\textbf{Layer-by-Layer.}
+Most accelerators run the CNN layer by layer~\cite{qiu2016going,guo2017angel}. 
 There is no extra data transfer for the accelerator to switch between different tasks after each layer, thus, $t_{cost}=0$. 
 However, the position of the interrupt request is irregular and unpredictable. When an interrupt occurs inside a CNN layer, the CNN accelerator needs to finish the whole layer before switching, which leads to the high response latency ($t_{latency}$).
 
-% The latency to respond the interrupt and the performance degradation of the CPU-like interrupt and Layer-by-layer method will be evaluated in \Cref{sec:experiments}.
+% The latency to respond the interrupt and the performance degradation of the CPU-like interrupt and Layer-by-Layer method will be evaluated in \Cref{sec:experiments}.
 
 
 
-We propose the \textbf{virtual-instruction-based} method (VI method) to enable low-latency interrupt. 
+We propose the \textbf{virtual-instruction-based} method (\textit{VI} method) to enable low-latency interrupt. 
 % Different from the CPU-like interrupt, which backup/recovery all the on-chip caches, only the on-chip cache which is still needed in future execution will be backed-up and restored. So that the amount of data transfer is much lower than that of CPU-like interrupt.
 To reduce the interrupt response latency, our virtual-instruction-based method is interruptible inside each layer. We add some virtual instructions to the original instruction sequence to enable the interrupt.
 The virtual instructions, which contain the backup and recovery instructions, are responsible for backing up and restoring on-chip caches. 
@@ -126,7 +136,7 @@ Virtual LOAD instructions also need to restore the intermediate results from par
 % By adding the virtual instructions, the CNN can be interrupted anywhere, and the latency to to response the interrupt is reduced. However, there virtual instructions are only valid when interrupt occurs. So we add a field in the origin instruction set, that indicates whether the instruction a virtual instruction. If no interrupt occurs, virtual instructions will be skipped and discarded, which can ensure the efficiency of uninterrupted execution. The modifications to the instruction set will be introduced in \Cref{sec:virtualinstr}. 
 
 
-% However, the CPU-like interrupt would back up all the on-chip registers to DDR. In CPU, there are tens of registers, and the backed-up data is around 1 KB. In CNN accelerators, there are hundreds of KB ~ several MB on-chip cache  ~\cite{qiu2016going, yu2018instruction}. If all the on-chip cache is backed-up and recovered, the cost of data transfer in the CNN accelerator is much higher than that of CPU.
+% However, the CPU-like interrupt would back up all the on-chip registers to DDR. In CPU, there are tens of registers, and the backed-up data is around 1 KB. In CNN accelerators, there are hundreds of KB~ several MB on-chip cache~\cite{qiu2016going, yu2018instruction}. If all the on-chip cache is backed-up and recovered, the cost of data transfer in the CNN accelerator is much higher than that of CPU.
 
 % We propose the \textbf{virtual-instruction-based} method to enable low-latency interrupt. The low-priority task maintains the executing status itself, rather than the hardware or the interrupt handler used in CPU. Only the cache which is still needed in future execution will be backed-up and restored.
 
@@ -144,16 +154,16 @@ Virtual LOAD instructions also need to restore the intermediate results from par
 
 
 \begin{figure*}[t]
-    % \flushleft
-    \centering
-    % \vspace{-0.1cm} 
-    % \setlength{\abovecaptionskip}{0cm} 
-    % \setlength{\belowcaptionskip}{-0.05cm} 
+ % \flushleft
+ \centering
+ % \vspace{-0.1cm} 
+ % \setlength{\abovecaptionskip}{0cm} 
+ % \setlength{\belowcaptionskip}{-0.05cm} 
 	\includegraphics[width=0.99\textwidth]{fig/singlesave.pdf} 	
 	\vspace{-1mm} 
-    \caption{
-		Illustration of scheduling on the CNN accelerator. Fig(a), a CalcBlob is the instructions that calculate the final results of $Para_{out}$ output channels from all input channels (the set of solid arrows). Fig(b), one SAVE instruction is only responsible for saving the results of one CalcBlob. Fig(c), one SAVE instruction is responsible for saving the results of several CalcBlobs. Fig(d) and Fig(e) illustrate the accelerator interrupt of Fig(b) and Fig(c). The latency ($t_{latency}$) and extra cost ($t_{cost}$) are labelled in Fig(e).
-    }
+ \caption{
+		Illustration of scheduling on the CNN accelerator. Fig(a), a CalcBlob is the instructions that calculate the final results of $P_{out}$ output channels from all input channels (the set of solid arrows). Fig(b), one SAVE instruction is only responsible for saving the results of one CalcBlob. Fig(c), one SAVE instruction is responsible for saving the results of several CalcBlobs. Fig(d) and Fig(e) illustrate the accelerator interrupt of Fig(b) and Fig(c). The latency ($t_{latency}$) and extra cost ($t_{cost}$) are labelled in Fig(e).
+ }
 	\label{fig:singlesave}
 \end{figure*}
 
@@ -162,7 +172,7 @@ Virtual LOAD instructions also need to restore the intermediate results from par
 \subsection{ Where To Interrupt: After SAVE/CALC\_F }
 \label{sec:whereinter}
 The virtual-instruction-based method has two potential factors that may lead to system performance degradation: 1) The extra data transfer to backup/restore running status takes up additional bandwidth resources. 2) The instruction fetching for the virtual instructions also uses bandwidth resources.
-%  Even they are skipped and discarded.
+% Even they are skipped and discarded.
 To address the above problems of virtual-instruction-based method, we analyze the interrupt cost and select the positions of adding the virtual instructions.
 The backup/recovery data for different interrupt positions at each kind of instruction are listed in the Backup/Recovery columns of \Cref{tab:instr}. The backup/recovery data transfer for each instruction is analyzed as follows:
 
@@ -206,73 +216,74 @@ In order to minimize the cost of interrupt, we make the CNN interruptible after 
 		\end{minipage}%
 	}
 	\vspace{-1mm} 
-	\caption{ An example of waiting time for finishing the current operation ($t_1$) in a convolution layer. Compared with the Layer-by-Layer method, the waiting time of our Virtual-Instruction method is reduced to $1.6\%$ in this example. The reduction in latency is related to the height ($H$) of the input featuremaps.  }
+	\caption{ An example of waiting time for finishing the current operation ($t_1$) in a convolution layer. Compared with the Layer-by-Layer method, the waiting time of our Virtual-Instruction method is reduced to $1.6\%$ in this example. The reduction in latency is related to the height ($H$) of the input featuremaps. }
 	\label{fig:t1example}
 \end{figure*}
 
 
 
 \subsection {Latency Analysis}
+In this subsection, we analyze the impact of interruptible position on the interrupt respond latency.
 
-In this subsection, we quantitatively analyze the impact of interruptible position on interrupt respond latency. 
-As introduced in \Cref{sec:instrAcc}, each CALC  instruction processes the convolution according to the hardware parallelism with $Para_{height}$ lines from $ Para_{in} $ input channels to $ Para_{out}$ output channels. 
-We here note the computation of a CALC instruction an $instruction pulse$, or $pulse$.
-The computation time of each pulse is related to the hardware architecture and the width of the convolution layer. The larger the width, the larger the workload of a single calculation instruction, and thus the CALC instruction consumes more time. We note the time consumption of a pulse as a function of the featuremap width, $t_{pulse}$:
-
+As introduced in \Cref{sec:instrAcc}, each CALC instruction processes the convolution according to the hardware parallelism with $P_{h}$ lines from $ P_{in} $ input channels to $ P_{out}$ output channels. 
+The computation time of each pulse is related to the hardware architecture and the width of the convolution layer. 
+The larger the width, the larger the workload of a single calculation instruction, and thus the CALC instruction consumes more time. 
+We note the computation of a CALC instruction a $pulse$ and the time consumption of a pulse as a function of the featuremap width, $t_{pulse}$:
 \begin{equation}
 	t_{pulse}(W) = t_{hw} \times W
 \end{equation}
+$t_{hw}$ indicates the time for hardware to produce one pixel in the ouput results, which is defined by the architecture and the clock frequency.
+$W$ is the width of the featuremaps, indicating the workload of the instruction.
 
-$t_{hw}$ indicates the time for hardware to produce the intermediate results of one pixel, which is defined by the hardware design and the clock frequency. $W$ is the width of the featuremaps, indicating the workload of the instruction.
 
-\Cref{fig:t1example}(a) shows the worst case of waiting for finishing the current operation of the Layer-by-Layer interrupt method. The worst case is that the interrupt request occurs at the beginning of the layer. In this case, the accelerator will wait until finishing the whole layer. The calculation of the whole layer consists of $N_{pulse\_layer}$ successive CALC instructions. We note the worst time of waiting to finish the current layer, which is the total time of these pulses, as $t_{1\_layer}$.
-
+The worst interrupt respond latency in Layer-by-Layer method, is to wait from the beginning of a layer until the whole layer finishes.
+The calculation of the whole layer consists of $N_{pulse}^{lbl}$ successive CALC instructions, which is related to the workload ($Ch_{in},Ch_{out},H$) and the hardware parallelism ($P_{in},P_{out},P_{h}$)
 \begin{equation}
 	\small
-	N_{pulse\_layer} = \frac{ Ch_{in} \times Ch_{out} \times H }{ (Para_{in} \times Para_{out} \times Para_{height}) } 
+	N_{pulse}^{lbl} = \frac{ Ch_{in} \times Ch_{out} \times H }{ P_{in} \times P_{out} \times P_{h} } 
 \end{equation}
-
+We note the worst time of waiting to finish the current layer, which is the total time of these pulses, as $t_{1}^{lbl}$.
 \begin{equation}
-t_{1\_layer} = N_{pulse} \times t_{pulse}(W)
+t_{1}^{lbl} = N_{pulse}^{lbl} \times t_{pulse}(W)
 \end{equation}
-
 $Ch_{in}$ and $Ch_{out}$ is the number of input channels and output channels. $H$ is the height of featuremaps.
 
-On the other hand, if the execution of the CNN accelerator can be interrupted after SAVE/CALC\_F instructions, the worst case of waiting for finishing the current operation is illustrated in \Cref{fig:t1example}(b). The calculation of the whole CalcBlob consists of $N_{pulse\_VI}$ successive CALC instructions. We note the worst waiting time in this case as $t_{1\_VI}$.
-
+On the other hand, if the execution of the CNN accelerator can be interrupted after SAVE/CALC\_F instructions, the worst case of waiting for finishing the current operation is illustrated in \Cref{fig:t1example}(b). 
+The calculation of the whole CalcBlob consists of $N_{pulse}^{VI}$ successive CALC instructions in our Virtual-Instruction method (\textit{VI} method).
 \begin{equation}
 	\small
-	N_{pulse\_VI} = \frac{ Ch_{in} \times Para_{out} \times Para_{height} }{ (Para_{in} \times Para_{out} \times Para_{height}) } 
+	N_{pulse}^{VI} = \frac{ Ch_{in} \times P_{out} \times P_{h} }{ P_{in} \times P_{out} \times P_{h} } 
 \end{equation}
-
+We note the worst waiting time of our VI method as $t_{1}^{VI}$.
 \begin{equation}
-t_{1\_VI} = N_{pulse\_VI} \times t_{pulse}(W)
+t_{1}^{VI} = N_{pulse}^{VI} \times t_{pulse}(W)
 \end{equation}
-
-
-Because our Virtual-Instruction method (VI method) only interrupts the execution after CALC\_F and SAVE, there is no extra data transfer for the intermediate results. The backup operation in the VI method only transfers the final results, which are also transfered to DDR with the SAVE instructions in the Layer-by-Layer method. 
-Experimental results, which will be given in \Cref{sec:expt1t2}, show that the data transfer time for the final results is much less than the calculation time (less than 20\%), in both the Layer-by-Layer method and the VI method. Thus the latency to respond to the interrupt request ($t_{latency}$) is mainly determined by the time of finishing the current operation.
-
+% Because our VI method only interrupts the execution after CALC\_F and SAVE, there is no extra data transfer for the intermediate results. 
+The backup operation in the \textit{VI} method only transfers the final results, which are also transfered to DDR with the SAVE instructions in the Layer-by-Layer method. 
+Experimental results, which will be given in \Cref{sec:expt1t2}, show that the data transfer time for the final results is much less than the calculation time (less than 20\%), in both the Layer-by-Layer method ($t_{2}^{lbl}$) and the \textit{VI} method ($t_{2}^{VI}$). 
+\begin{equation}
+	t_{2}^{lbl} \ll t_{1}^{lbl} ; 
+	t_{2}^{VI} \ll t_{1}^{VI}
+\end{equation}
+Thus the latency to respond to the interrupt request ($t_{latency}$ in \Cref{equ:latency}) is mainly determined by the time of finishing the current operation ($t_1$).
 As the interrupt request is unpredictable, we model the interrupt location as evenly distributed within each layer. Thus the average interrupt latency is $\bar{t}_{latency} $.
-
 \begin{equation}
-	\bar{t}_{latency}  \simeq \frac{1}{2} \times t_{1}
+	\bar{t}_{latency} \simeq \frac{1}{2} \times t_{1}
 \end{equation}
-
 Compared with the Layer-by-Layer method, the latency of our method is reduced to $R_l$.
-
 \begin{equation}
 	\small
 	\begin{split}
-	R_l & =  \frac{\bar{t}_{latency\_VI}}{\bar{t}_{latency\_layer}} \simeq \frac{\frac{1}{2} \times t_{1\_VI}}{\frac{1}{2} \times t_{1\_layer}}  = \frac{ N_{pulse\_VI} \times t_{pulse}(W) }{ N_{pulse} \times t_{pulse}(W) }  \\
-		   & = \frac{ N_{pulse\_VI} }{N_{pulse} } = \frac{ Ch_{in} \times Para_{out} \times Para_{height}  }{  Ch_{in} \times Ch_{out} \times H } \\
-		   & = \frac{ Para_{out} \times Para_{height} }{ Ch_{out} \times H} 
+	R_l & = \frac{\bar{t}_{latency}^{VI}}{\bar{t}_{latency}^{layer}} \simeq \frac{\frac{1}{2} \times t_{1}^{VI}}{\frac{1}{2} \times t_{1}^{layer}} \\
+		 & = \frac{ N_{pulse}^{VI} }{N_{pulse}^{lbl} } = \frac{ Ch_{in} \times P_{out} \times P_{h} }{ Ch_{in} \times Ch_{out} \times H } = \frac{ P_{out} \times P_{h} }{ Ch_{out} \times H} 
 	\end{split}
+	\label{equ:latencyRL}
 \end{equation}
+$\bar{t}_{latency\_VI}$ and $\bar{t}_{latency\_VI}$ are the average interrupt latency of the Virtual-Instruction method and the Layer-by-Layer method. The effect of latency reduction of the \textit{VI} method is related to the number of output channels ($Ch_{out}$) and featuremap height ($H$). The larger the featuremaps output channels and the height, the better latency reduction result can be achieved.
 
-$\bar{t}_{latency\_VI}$ and $\bar{t}_{latency\_VI}$ are the average interrupt latency of the Virtual-Instruction method and the Layer-by-Layer method. The effect of latency reduction of the VI method is related to the number of output channels ($Ch_{out}$) and featuremap height ($H$). The larger the featuremaps output channels and the height, the better latency reduction result can be achieved.
-
-An example of a convolution layer with a typical size in CNN is given in \Cref{fig:t1example}. The parameters are labelled in the figures. The latency can be reduced to $R_t = 8/480 =1.6\%$.
+An example of a convolution layer with a typical size in CNN is given in \Cref{fig:t1example}. The parameters are labelled in the figures ($P_{out}=8,P_{h}=4,Ch_{out}=32,H=60$). 
+According to \Cref{equ:latencyRL}, the latency can be reduced to $R_t = (P_{out} \times P_{h}) /( Ch_{out} \times H ) = (8*4)/(32*60) =1.6\%$.
+More results will be given in \Cref{sec:exptlatency}.
 
 
 
@@ -281,7 +292,7 @@ An example of a convolution layer with a typical size in CNN is given in \Cref{f
 
 We add two fields to the instruction set: 1) Virtual and 2) SaveID, as illustrated in \Cref{fig:instructions}(b). 
 
-\textbf{   Virtual Field}. The virtual instructions should be only valid when interrupt occurs. So we add a field in the original ISA, that indicates whether the instruction is a virtual instruction. If no interrupt occurs, virtual instructions will be skipped and discarded, which can ensure the efficiency of uninterrupted execution. Three values can be set to Virtual Field:
+\textbf{ Virtual Field}. The virtual instructions should be only valid when interrupt occurs. So we add a field in the original ISA, that indicates whether the instruction is a virtual instruction. If no interrupt occurs, virtual instructions will be skipped and discarded, which can ensure the efficiency of uninterrupted execution. Three values can be set to Virtual Field:
 % \begin{itemize}
 
 	\textit{2'b00} indicates this instruction is not virtual, should always be executed.
@@ -304,9 +315,9 @@ For Multiple Blob Save, virtual SAVE and LOAD instructions are generated after t
 
 \begin{figure}[t]
 	\centering
-    % \vspace{-0.1cm} 
-    % \setlength{\abovecaptionskip}{0cm} 
-    % \setlength{\belowcaptionskip}{-0.4cm} 
+ % \vspace{-0.1cm} 
+ % \setlength{\abovecaptionskip}{0cm} 
+ % \setlength{\belowcaptionskip}{-0.4cm} 
 	\includegraphics[width=0.99\linewidth]{fig/iau.pdf}
 	\vspace{-6mm}
 	\caption{Hardware architecture of IAU. The software on the CPU (PS side) communicates with IAU to access the CNN accelerator. IAU records the running state of each task and translates the input instruction virtual instructions sequence (VI-ISA) to a normal sequence of instructions (Original ISA).
@@ -316,9 +327,9 @@ For Multiple Blob Save, virtual SAVE and LOAD instructions are generated after t
 
 \begin{figure}[t]
 	\centering
-    % \vspace{-0.1cm} 
-    % \setlength{\abovecaptionskip}{0cm} 
-    % \setlength{\belowcaptionskip}{-0.4cm} 
+ % \vspace{-0.1cm} 
+ % \setlength{\abovecaptionskip}{0cm} 
+ % \setlength{\belowcaptionskip}{-0.4cm} 
 	\includegraphics[width=0.8\linewidth]{fig/nestedinter.pdf}
 	\vspace{-0mm}
 	\caption{
@@ -330,9 +341,9 @@ For Multiple Blob Save, virtual SAVE and LOAD instructions are generated after t
 
 \begin{figure*}[t]
 	\centering
-    % \vspace{-0.1cm} 
-    % \setlength{\abovecaptionskip}{0cm} 
-    % \setlength{\belowcaptionskip}{-0.05cm} 
+ % \vspace{-0.1cm} 
+ % \setlength{\abovecaptionskip}{0cm} 
+ % \setlength{\belowcaptionskip}{-0.05cm} 
 	\includegraphics[width=0.9\linewidth]{fig/interexample.pdf}
 	\vspace{-5mm}
 	\caption{ A simple example of our proposed virtual-instruction-based interrupt. Fig(a), the CNN layer structure. Fig(b), the on-chip and DDR addresses of different data. Fig(c), the instruction sequence in virtual instruction ISA (VI-ISA). The blue instructions are the virtual SAVE and LOAD. Fig(d), executed instructions when no interrupt occurs. Fig(e), executed instructions when an interrupt occurs. }
@@ -370,7 +381,7 @@ Once the number of max supported priorities is determined and programmed on the 
 
 
 The example is based on a straightforward convolutional layer, which has only one input channel and two output channels. 
-The convolution kernel size is $1 \times 1$. The shape of the input and output featuremaps is $ 2 \times 16 $ (\Cref{fig:interexample}(a)). The parallelism of the CALC instruction in this example is $ Para_{in} = 1$ , $ Para_{out}=1$ , $Para_{height}=2$.
+The convolution kernel size is $1 \times 1$. The shape of the input and output featuremaps is $ 2 \times 16 $ (\Cref{fig:interexample}(a)). The parallelism of the CALC instruction in this example is $ P_{in} = 1$ , $ P_{out}=1$ , $P_{h}=2$.
 
 Thus, the two output channels are calculated by two CALC\_F instructions (instruction 3 and 7 in \Cref{fig:interexample}(c)). The addresses used in the instruction example are listed in \Cref{fig:interexample}(b). \Cref{fig:interexample}(c) is the instruction sequence from DDR with VI-ISA. \Cref{fig:interexample}(d) is the executed original ISA instructions without interrupt. When an interrupt occurs at the first CalcBlob, \Cref{fig:interexample}(e) illustrates the backup/recovery instructions (Blue) and the modified SAVE instruction (Red). 
 % IAU monitors the interrupt status and translates the VI-ISA instruction sequence to the original ISA instruction sequence.

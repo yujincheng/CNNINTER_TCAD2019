@@ -6,29 +6,29 @@ To solve the hardware resources conflicts when the ROS software accesses the CNN
 
 \begin{figure}[t]
 	\centering
-    % \vspace{-0.1cm} 
-    % \setlength{\abovecaptionskip}{0.cm} 
-    % \setlength{\belowcaptionskip}{-0.25cm} 
-    \includegraphics[width=0.9\linewidth]{fig/codeexample.pdf}
-    \vspace{-6mm}
-    \caption{ ROS code examples. Each software function is packaged as independent \textit{Node} in ROS. A node subscribes to the topics which contain the data structures and processes these data with callback functions (\textit{FEcallback} in (a), (\textit{PRcallback} in (b)). Different nodes do not know the running status of others. In INCAME, the developer only needs to provide the priority ($priority=0 or 1$) of each task and the hardware schedules these tasks. The FPGA accelerator for the post-processing of FE uses the ScratchPad memory to directly use the CNN results (\textit{FECnn} in (a)) without memory copy. 
-    }
+ % \vspace{-0.1cm} 
+ % \setlength{\abovecaptionskip}{0.cm} 
+ % \setlength{\belowcaptionskip}{-0.25cm} 
+ \includegraphics[width=0.9\linewidth]{fig/codeexample.pdf}
+ \vspace{-6mm}
+ \caption{ ROS code examples. Each software function is packaged as independent \textit{Node} in ROS. A node subscribes to the topics which contain the data structures and processes these data with callback functions (\textit{FEcallback} in (a), (\textit{PRcallback} in (b)). Different nodes do not know the running status of others. In INCAME, the developer only needs to provide the priority ($priority=0 or 1$) of each task and the hardware schedules these tasks. The FPGA accelerator for the post-processing of FE uses the ScratchPad memory to directly use the CNN results (\textit{FECnn} in (a)) without memory copy. 
+ }
 	\label{fig:rosexample}
 \end{figure}
 
 \begin{figure*}[t]
 	\centering
-    % \setlength{\abovecaptionskip}{0cm} 
-    % \setlength{\belowcaptionskip}{-0.05cm} 
-    \includegraphics[width=0.99\linewidth]{fig/incame.pdf}
-    \vspace{-1mm} 
-    \caption{ Fig(a), INCAME framework. CNN backbones are arranged onto the CNN accelerator. Post-processing operations are arranged onto the special logic. For CNN backbone, INCAME inserts virtual instructions at compilation stage (Fig(b)), and dynamically schedules different tasks at runtime (Fig(c)). }
+ % \setlength{\abovecaptionskip}{0cm} 
+ % \setlength{\belowcaptionskip}{-0.05cm} 
+ \includegraphics[width=0.99\linewidth]{fig/incame.pdf}
+ \vspace{-1mm} 
+ \caption{ Fig(a), INCAME framework. CNN backbones are arranged onto the CNN accelerator. Post-processing operations are arranged onto the special logic. For CNN backbone, INCAME inserts virtual instructions at compilation stage (Fig(b)), and dynamically schedules different tasks at runtime (Fig(c)). }
 	\label{fig:incame}
 \end{figure*}
 
 \subsection{Hardware Resources Conflicts In ROS}
-\subsubsection{Introduction to ROS} Building a real robot requires many different components, including sensors, perception algorithms, and control units from different developers. The Robot Operating System (ROS)  ~\cite{quigley2009ros} is proposed to fuse the components from different researchers into a real system.
-%  ROS is a popular framework for developing a robot, which provides programming specifications and a communication interface.
+\subsubsection{Introduction to ROS} Building a real robot requires many different components, including sensors, perception algorithms, and control units from different developers. The Robot Operating System (ROS)~\cite{quigley2009ros} is proposed to fuse the components from different researchers into a real system.
+% ROS is a popular framework for developing a robot, which provides programming specifications and a communication interface.
 
 Each function module, such as FE, PR, and VO, is called a \textbf{Node} in ROS. Each node is an independent thread running on CPU, and does not know the running status of others. 
 % Different nodes communicate with others by \textbf{ROS topics}. 
@@ -39,7 +39,7 @@ The subscribing node processes the received topics with callback functions. \tex
 
 % The publishing node is called publisher, the subscribing node is called subscriber.
 
-% \textbf{Publisher.} When the output of a publisher node is ready, the output data are inmediately packaged to the topic and published. ROS provides some system publisher, such as cv\_camera  ~\cite{cvcamera} to read the camera and publish the input frames to a ROS topic.
+% \textbf{Publisher.} When the output of a publisher node is ready, the output data are inmediately packaged to the topic and published. ROS provides some system publisher, such as cv\_camera~\cite{cvcamera} to read the camera and publish the input frames to a ROS topic.
 
 % \textbf{Subscriber.} The subscriber processes received topics through \textbf{callback} functions. Each callback function is bound to a topic. When the topic receives data, the callback function executed to process the data. If the callback function cannot complete before receiving the new data, the newly received data will be discarded.
 
@@ -56,58 +56,58 @@ The subscribing node processes the received topics with callback functions. \tex
 
 
 % \begin{algorithm}[t]
-%     \caption{ ROS Node for FE }
-%     \label{code:FE}
-%     \begin{algorithmic}[1]
-%         \State {\color{gray} // imagePtr, imageAddr, fmPtr, fmAddr, DPUtask, Bankendtask  is initialized by main and used in FEcallback.}
-%         \Function {FEcallback}{$ InputFrame $}
-%         \State {\color{gray} // Read and reshape the InputFrame. }
-%         \State {\color{blue} *imagePtr  $\gets$ *InputFrame }
-%         \State DPUtask.run()
-%         \State FEBackend.run()
-%         \EndFunction
+% \caption{ ROS Node for FE }
+% \label{code:FE}
+% \begin{algorithmic}[1]
+%  \State {\color{gray} // imagePtr, imageAddr, fmPtr, fmAddr, DPUtask, Bankendtask is initialized by main and used in FEcallback.}
+%  \Function {FEcallback}{$ InputFrame $}
+%  \State {\color{gray} // Read and reshape the InputFrame. }
+%  \State {\color{blue} *imagePtr $\gets$ *InputFrame }
+%  \State DPUtask.run()
+%  \State FEBackend.run()
+%  \EndFunction
 
-%         \Function {Main}{$ $}
-%         \State {\color{gray} // Init ScratchPad Memory. Ptr is for CPU operations, Addr is for FPGA modules.}
-%         \State imagePtr, imageAddr = ScratchPad(FEinputsize)
-%         \State fmPtr, fmAddr = ScratchPad(FEfmsize)
-%         \State {\color{gray}// Config task0 in IAU of the accelerator (DPU).}
-%         \State DPUtask = DPUinit({\color{red}  priority=0},{\color{blue} instraddr=FEinstrAddr, }
-%         \State \qquad \qquad \qquad \quad {\color{blue} inoffset=imageAddr,outoffset=fmAddr } ) 
-%         \State FEBackend = FEBackendinit({\color{blue}fmAddr, fmPtr});
-%         \State {\color{gray}// The node subscribes the inputframe, and use the FEcallback to process each inputframe.}
-%         \State Subscriber = Node.subscribe( InputFrameTopic, FEcallback);
-%         \State {\color{gray}// Use spin to start the subscriber}
-%         \State Subscriber.spin();
-%         \EndFunction
-%     \end{algorithmic}
+%  \Function {Main}{$ $}
+%  \State {\color{gray} // Init ScratchPad Memory. Ptr is for CPU operations, Addr is for FPGA modules.}
+%  \State imagePtr, imageAddr = ScratchPad(FEinputsize)
+%  \State fmPtr, fmAddr = ScratchPad(FEfmsize)
+%  \State {\color{gray}// Config task0 in IAU of the accelerator (DPU).}
+%  \State DPUtask = DPUinit({\color{red} priority=0},{\color{blue} instraddr=FEinstrAddr, }
+%  \State \qquad \qquad \qquad \quad {\color{blue} inoffset=imageAddr,outoffset=fmAddr } ) 
+%  \State FEBackend = FEBackendinit({\color{blue}fmAddr, fmPtr});
+%  \State {\color{gray}// The node subscribes the inputframe, and use the FEcallback to process each inputframe.}
+%  \State Subscriber = Node.subscribe( InputFrameTopic, FEcallback);
+%  \State {\color{gray}// Use spin to start the subscriber}
+%  \State Subscriber.spin();
+%  \EndFunction
+% \end{algorithmic}
 % \end{algorithm}
 
 % \begin{algorithm}[t]
-%     \caption{ ROS Node for PR }
-%     \label{code:PR}
-%     \begin{algorithmic}[1]
-%         \Function {PRcallback}{$ InputKeyFrame $}
-%         \State {\color{blue} *imagePtr  $\gets$ *InputKeyFrame }
-%         \State DPUtask.run()
-%         \State PRBackend.run()
-%         \EndFunction
+% \caption{ ROS Node for PR }
+% \label{code:PR}
+% \begin{algorithmic}[1]
+%  \Function {PRcallback}{$ InputKeyFrame $}
+%  \State {\color{blue} *imagePtr $\gets$ *InputKeyFrame }
+%  \State DPUtask.run()
+%  \State PRBackend.run()
+%  \EndFunction
 
-%         \Function {Main}{$ $}
-%         \State imagePtr, imageAddr = ScratchPad(PRinputsize)
-%         \State fmPtr, fmAddr = ScratchPad(PRfmsize)
-%         \State DPUtask = PR\_DPUinit( {\color{red} priority=1},{\color{blue} instraddr=PRinstrAddr}, 
-%         \State \qquad \qquad \qquad \quad {\color{blue} inoffset=imageAddr,outoffset=fmAddr } ) 
-%         \State PRBackend = PRBackendinit({\color{blue}fmAddr, fmPtr});
-%         \State Subscriber = Node.subscribe( InputKeyFrameTopic, PRcallback);
-%         \State Subscriber.spin();
-%         \EndFunction
-%     \end{algorithmic}
+%  \Function {Main}{$ $}
+%  \State imagePtr, imageAddr = ScratchPad(PRinputsize)
+%  \State fmPtr, fmAddr = ScratchPad(PRfmsize)
+%  \State DPUtask = PR\_DPUinit( {\color{red} priority=1},{\color{blue} instraddr=PRinstrAddr}, 
+%  \State \qquad \qquad \qquad \quad {\color{blue} inoffset=imageAddr,outoffset=fmAddr } ) 
+%  \State PRBackend = PRBackendinit({\color{blue}fmAddr, fmPtr});
+%  \State Subscriber = Node.subscribe( InputKeyFrameTopic, PRcallback);
+%  \State Subscriber.spin();
+%  \EndFunction
+% \end{algorithmic}
 % \end{algorithm}
 
 % \subsection{ Accelerator interrupt to solve Hardware Resources Conflicts }
 
-% In order to support multi-task scheduling and solve the hardware resources conflicts, interrupt is introduced to CPU  ~\cite{jen1974processor}. In this paper, we also use the concept of interrupt to support multi-task on the CNN accelerator.
+% In order to support multi-task scheduling and solve the hardware resources conflicts, interrupt is introduced to CPU~\cite{jen1974processor}. In this paper, we also use the concept of interrupt to support multi-task on the CNN accelerator.
 
 
 % If the CNN accelerator supports interrupt, it can run two or more CNN modules at the same time. 
@@ -127,22 +127,22 @@ The subscribing node processes the received topics with callback functions. \tex
 The first step is the task decomposition, which decomposes the computation in ROS nodes into different INCAME computation types, including CNN backbones, CNN post-processing, and other CPU tasks. 
 
 The second step is to deploy the computation onto the FPGA. 
-The CNN backbones of different tasks, such as the VGG model in SuperPoint feature-point extraction  ~\cite{detone2018superpoint} and the ResNet101 model in GeM place recognition  ~\cite{radenovic2018fine}, are compiled to the interruptible Virtual-Instruction Instruction Set Architecture (VI-ISA), which runs on the CNN accelerator. The VI-ISA is a simple extension of the original ISA, in which the extension method is not limited to a specific original ISA. Thus, the virtual-instruction-based interrupt can be easily applied to various instruction-based CNN accelerators  ~\cite{yu2018instruction,qiu2016going}, such as Angel-Eye ~\cite{guo2017angel} and DPU ~\cite{dpu}.
+The CNN backbones of different tasks, such as the VGG model in SuperPoint feature-point extraction~\cite{detone2018superpoint} and the ResNet101 model in GeM place recognition~\cite{radenovic2018fine}, are compiled to the interruptible Virtual-Instruction Instruction Set Architecture (VI-ISA), which runs on the CNN accelerator. The VI-ISA is a simple extension of the original ISA, in which the extension method is not limited to a specific original ISA. Thus, the virtual-instruction-based interrupt can be easily applied to various instruction-based CNN accelerators~\cite{yu2018instruction,qiu2016going}, such as Angel-Eye~\cite{guo2017angel} and DPU~\cite{dpu}.
 \textcolor{blue}{
-There are some new \textit{virtual} instructions in the VI-ISA, which is responsible for backup and restore the CNN running status and data.  These virtual instructions are only executed when interrupt occurs, otherwise, they are skipped and discarded.
+There are some new \textit{virtual} instructions in the VI-ISA, which is responsible for backup and restore the CNN running status and data. These virtual instructions are only executed when interrupt occurs, otherwise, they are skipped and discarded.
 }
 
 % At runtime, the interruptible CNN accelerator runs these instructions to calculate the CNN backbones.
 % To accelerate the post-processing operations of the CNN based methods, 
 
-Hardware modules are implemented for the CPU-intensive Softmax  \cite{Softmax-wiki} and Normalization  \cite{Norm}. Some task-related software optimizations, such as Ranking and Non-Maximum Suppression (NMS)  \cite{NeubeckGool-NMS}, as well as other ROS tasks written in C++/Python, are processed on the CPU side.
+Hardware modules are implemented for the CPU-intensive Softmax \cite{Softmax-wiki} and Normalization \cite{Norm}. Some task-related software optimizations, such as Ranking and Non-Maximum Suppression (NMS) \cite{NeubeckGool-NMS}, as well as other ROS tasks written in C++/Python, are processed on the CPU side.
 
-To eliminate the memory copy between CPU cores and CNN accelerators, we use low-latency ScratchPad memory  \cite{Banakar2002Scratchpad} to directly feed the results from CNN backbones to the post-processing modules. 
+To eliminate the memory copy between CPU cores and CNN accelerators, we use low-latency ScratchPad memory \cite{Banakar2002Scratchpad} to directly feed the results from CNN backbones to the post-processing modules. 
 
-\Cref{fig:incame}(b) details the INCAME compilation stage. At compilation stage, INCAME translates the CNN model from a software framework to the instruction sequence, which can be executed in the interruptible CNN accelerator. Caffe  ~\cite{jia2014caffe} is a popular software framework for CNN, and the *.caffemodel/*.prototxt files define the network parameters and structure in Caffe. The previous deployment process, such as Angel-Eye  ~\cite{guo2017angel} and DPU ~\cite{dpu}, quantizes the weights, and analyze the network topology. The original compiler translates the network topology and the quantization information into the original ISA sequence. INCAME goes further than previous CNN compilers. It selects the optimized interrupt positions in the original instruction sequence, and adds virtual instructions at these positions to enable accelerator interrupt. After that, the original instruction sequence and the added virtual instructions are wrapped to the new interruptible VI-ISA. The wrapped VI-ISA instructions are dumped into a file (instruction.bin), and can be loaded into the instruction spaces on FPGA's DDR.
+\Cref{fig:incame}(b) details the INCAME compilation stage. At compilation stage, INCAME translates the CNN model from a software framework to the instruction sequence, which can be executed in the interruptible CNN accelerator. Caffe~\cite{jia2014caffe} is a popular software framework for CNN, and the *.caffemodel/*.prototxt files define the network parameters and structure in Caffe. The previous deployment process, such as Angel-Eye~\cite{guo2017angel} and DPU~\cite{dpu}, quantizes the weights, and analyze the network topology. The original compiler translates the network topology and the quantization information into the original ISA sequence. INCAME goes further than previous CNN compilers. It selects the optimized interrupt positions in the original instruction sequence, and adds virtual instructions at these positions to enable accelerator interrupt. After that, the original instruction sequence and the added virtual instructions are wrapped to the new interruptible VI-ISA. The wrapped VI-ISA instructions are dumped into a file (instruction.bin), and can be loaded into the instruction spaces on FPGA's DDR.
 
 
-As illustrated in \Cref{fig:incame}(c), at runtime, Instruction Arrangement Unit (IAU), an hardware on the FPGA fabric together with the CNN accelerator, listens to the interrupt request from ROS software, fetches the corresponding VI-ISA interruptible instructions and translates them to the original ISA executed on the CNN accelerator in Angel-Eye  ~\cite{guo2017angel}. 
+As illustrated in \Cref{fig:incame}(c), at runtime, Instruction Arrangement Unit (IAU), an hardware on the FPGA fabric together with the CNN accelerator, listens to the interrupt request from ROS software, fetches the corresponding VI-ISA interruptible instructions and translates them to the original ISA executed on the CNN accelerator in Angel-Eye~\cite{guo2017angel}. 
 The detail of the Virtual-Instruction ISA (VI-ISA) and instruction arrangement unit (IAU) is introduced in \Cref{sec:cnninterrupt}. 
-Although INCAME can be applied to various instruction-based CNN accelerators, we implement and evaluate it based on Angel-Eye  ~\cite{guo2017angel}.
+Although INCAME can be applied to various instruction-based CNN accelerators, we implement and evaluate it based on Angel-Eye~\cite{guo2017angel}.
 

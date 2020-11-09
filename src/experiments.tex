@@ -2,13 +2,13 @@
 
 
 \begin{figure*}[t]
-  \centering
-%   \vspace{-0.1cm} 
-  % \setlength{\abovecaptionskip}{0cm} 
-%   \setlength{\belowcaptionskip}{-0.05cm} 
-  \includegraphics[width=0.99\linewidth]{fig/env.pdf}
-  \caption{Multi-robot exploration: environment and results. Fig(a), the hardware-in-loop system based on ROS. Fig(b), the robot components in \Cref{fig:maexp}, such as feature-point extraction (FE), place recognition (PR), visual odometery (VO) are processed on each hardware platform. The numbers in circle indicate the components in \Cref{fig:maexp}. Fig(c), the result of merged map and trajectories.}
-  \label{fig:env}
+ \centering
+% \vspace{-0.1cm} 
+ % \setlength{\abovecaptionskip}{0cm} 
+% \setlength{\belowcaptionskip}{-0.05cm} 
+ \includegraphics[width=0.99\linewidth]{fig/env.pdf}
+ \caption{Multi-robot exploration: environment and results. Fig(a), the hardware-in-loop system based on ROS. Fig(b), the robot components in \Cref{fig:maexp}, such as feature-point extraction (FE), place recognition (PR), visual odometery (VO) are processed on each hardware platform. The numbers in circle indicate the components in \Cref{fig:maexp}. Fig(c), the result of merged map and trajectories.}
+ \label{fig:env}
 \end{figure*}
 
 
@@ -18,47 +18,47 @@
 
 \subsection{ Experiment Setup }
 
-The hardware-in-loop evaluate environment is illustrated in \Cref{fig:env}(a). There is a simulation server providing the simulation environment based on AirSim  ~\cite{shah2018airsim}, which is a high-fidelity visual and physical simulation for autonomous vehicles. The AirSim simulation server provides the camera data for each agent. Two Xilinx ZCU102 boards  ~\cite{zcu102}, with ZU9 MPSoC  ~\cite{MPSoC}, are responsible for the calculation of each agent. 
-The components in \Cref{fig:maexp} for each agent are implemented in the ZCU102 board. The implementation of the FE (\textcircled{1} in \Cref{fig:maexp}), SuperPoint ~\cite{detone2018superpoint}), is introduced in previous sections. GeM  ~\cite{radenovic2018fine} is used to implement the PR module (\textcircled{2}). GeM is a CNN-based method with ResNet101 as the backbone, and the post-processing of GeM calculates the 3-norm of the output featuremaps.
-The VO module (\textcircled{3}) in the experiment is the PnP  ~\cite{LepetitMoreno-Noguer-EPnP} method, which is widely used in the feature-point based VO. 
-% including the open source the ORB-SLAM  ~\cite{Mur-Artal:2017281}. 
-The DOpt module (\textcircled{4}) is proposed in  ~\cite{Choudhary:2017e66} and also used in the former distributed SLAM system ~\cite{cieslewski2018data}. 
-% The Map Merging  ~\cite{Andre2014} (\textcircled{5}), Exploration  ~\cite{8202319} (\textcircled{6}), and Navigation  ~\cite{tbd} (\textcircled{7}) in this work are provided by the ROS framework and running on the CPU side. 
-The Map Merging  (\textcircled{5}), Exploration (\textcircled{6}), and Navigation (\textcircled{7}) in this work are provided by the ROS framework and running on the CPU side. 
+The hardware-in-loop evaluate environment is illustrated in \Cref{fig:env}(a). There is a simulation server providing the simulation environment based on AirSim~\cite{shah2018airsim}, which is a high-fidelity visual and physical simulation for autonomous vehicles. The AirSim simulation server provides the camera data for each agent. Two Xilinx ZCU102 boards~\cite{zcu102}, with ZU9 MPSoC~\cite{MPSoC}, are responsible for the calculation of each agent. 
+The components in \Cref{fig:maexp} for each agent are implemented in the ZCU102 board. The implementation of the FE (\textcircled{1} in \Cref{fig:maexp}), SuperPoint~\cite{detone2018superpoint}), is introduced in previous sections. GeM~\cite{radenovic2018fine} is used to implement the PR module (\textcircled{2}). GeM is a CNN-based method with ResNet101 as the backbone, and the post-processing of GeM calculates the 3-norm of the output featuremaps.
+The VO module (\textcircled{3}) in the experiment is the PnP~\cite{LepetitMoreno-Noguer-EPnP} method, which is widely used in the feature-point based VO. 
+% including the open source the ORB-SLAM~\cite{Mur-Artal:2017281}. 
+The DOpt module (\textcircled{4}) is proposed in~\cite{Choudhary:2017e66} and also used in the former distributed SLAM system~\cite{cieslewski2018data}. 
+% The Map Merging~\cite{Andre2014} (\textcircled{5}), Exploration~\cite{8202319} (\textcircled{6}), and Navigation~\cite{tbd} (\textcircled{7}) in this work are provided by the ROS framework and running on the CPU side. 
+The Map Merging (\textcircled{5}), Exploration (\textcircled{6}), and Navigation (\textcircled{7}) in this work are provided by the ROS framework and running on the CPU side. 
 
-The hardware resources are listed in \Cref{tab:hardware}. The hardware resources are provided by Vivado after hardware implementation. Vivado is the development toolchain for MPSoC provided by Xilinx. The CNN backbone is calculated by the Angel-Eye CNN accelerator ~\cite{guo2017angel} on the FPGA side of ZCU102 (Programmable logic, PL side). The FE post-processing steps run on our proposed accelerators, also on the PL side. The PL side has 2 clock frequencies. The CNN accelerator and the IAU are running at 300MHz. The accelerator for FE post-processing is running at 200MHz. Compared with the CNN accelerator, IAU and FE post-processing use minimal hardware resources.
+The hardware resources are listed in \Cref{tab:hardware}. The hardware resources are provided by Vivado after hardware implementation. Vivado is the development toolchain for MPSoC provided by Xilinx. The CNN backbone is calculated by the Angel-Eye CNN accelerator~\cite{guo2017angel} on the FPGA side of ZCU102 (Programmable logic, PL side). The FE post-processing steps run on our proposed accelerators, also on the PL side. The PL side has 2 clock frequencies. The CNN accelerator and the IAU are running at 300MHz. The accelerator for FE post-processing is running at 200MHz. Compared with the CNN accelerator, IAU and FE post-processing use minimal hardware resources.
 
 % Table generated by Excel2LaTeX from sheet 'Sheet1'
 \begin{table}[t]
-  \centering
-  % \setlength{\abovecaptionskip}{2pt}
-  \caption{Hardware consumption of the proposed hardware}
+ \centering
+ % \setlength{\abovecaptionskip}{2pt}
+ \caption{Hardware consumption of the proposed hardware}
 % Table generated by Excel2LaTeX from sheet 'Sheet1'
 \begin{tabular}{|c|c|c|c|c|}
-  \hline
-        & $\# DSP$ & $\# LUT$ & $\# FF$ & $\# BRAM$ \\
-  \hline
-  On-Board resource &   2520   &  274080      &  548160     & 912 \\
-  \hline
-  CNN accelerator &   1282   &  74569      &   171416    & 499 \\
-  \hline
-  IAU &   0   &  2268      &   4633    & 4 \\
-  \hline
-  FE post-processing & 25      &  17573     &   29115    & 10 \\
-  \hline
-  \end{tabular}%
-  
-  \label{tab:hardware}%
+ \hline
+ & $\# DSP$ & $\# LUT$ & $\# FF$ & $\# BRAM$ \\
+ \hline
+ On-Board resource & 2520 & 274080 & 548160 & 912 \\
+ \hline
+ CNN accelerator & 1282 & 74569 & 171416 & 499 \\
+ \hline
+ IAU & 0 & 2268 & 4633 & 4 \\
+ \hline
+ FE post-processing & 25 & 17573 & 29115 & 10 \\
+ \hline
+ \end{tabular}%
+ 
+ \label{tab:hardware}%
 \end{table}%
 
 
 \subsection{Virtual Instruction-based interrupt }
+\label{sec:exptlatency}
 
 \subsubsection{ Interrupt response latency and extra cost}
 
-
-We evaluate the latency to respond the interrupt ($t_{latency}$) and the performance degradation ($t_{cost}$) of different interrupt method. In MR-Exploration, only the low-priority PR task is interruptible, and the interrupt position is unpredictable. GeM  ~\cite{radenovic2018fine} is used to implement the PR module in the experiment.
-The CNN backbone of the GeM is ResNet101, which contains 101 convolution layers. The input shape of the CNN is $480 \times 640 \times 3$. The parallelism of the Angel-Eye is $Para_{height}=8$, $Para_{in}=16$, $Para_{out}=16$, i.e. each CALC instruction processes 8 lines from 16 input channels to 16 output channels. 
+We evaluate the latency to respond the interrupt ($t_{latency}$) and the performance degradation ($t_{cost}$) of different interrupt method. In MR-Exploration, only the low-priority PR task is interruptible, and the interrupt position is unpredictable. GeM~\cite{radenovic2018fine} is used to implement the PR module in the experiment.
+The CNN backbone of the GeM is ResNet101, which contains 101 convolution layers. The input shape of the CNN is $480 \times 640 \times 3$. The parallelism of the Angel-Eye is $P_{h}=8$, $P_{in}=16$, $P_{out}=16$, i.e. each CALC instruction processes 8 lines from 16 input channels to 16 output channels. 
 % Thus, we randomly selected some interrupt locations inside the PR network.
 
 The latency to respond the interrupt in CPU-like method consists of the time to finish current executing instruction and the data backup time ($t_{latency} = t_1+t_2$) for the on-chip data/weights caches (totally 2.2MB). The latency in layer-by-layer interrupt is the time to finish the current layer. The latency of our virtual-instruction-based method is the time to finish the current executing instruction and the backup time for the calculated output results. 
@@ -77,30 +77,30 @@ INCAME monitors the running status inside each layer, and the interrupt respond 
 
 \subsubsection{ Time comparison between $t_1$ and $t_2$ }
 \label{sec:expt1t2}
-As described in \Cref{sec:virtualinstr}, the Layer-by-Layer interrupt method do not need to backup data before interruption ($t_2 = 0$). Though our Virtual-Instruction method (VI method) need to spend time to backup the final results, which are already generated yet not stored to DDR ($t_2$). However, compared with computation, the time of data backup ($t_2$) is short. We list the backup time and the convolution time ($t_1$) at some of the interrupt position in \Cref{fig:scatter1024}, with different featuremap shape, kernel size, and input/output channels. $H$, $W$ are the height, width of input featuremaps. $Ch_{in}$, $Ch_{out}$ are the number of input and output channels. The time of backup and calculation is listed in $Backup$ and $Conv$ columns. The ratio of backup and calculation is listed in the last column. The backup operation only consumes less than 20\% of the calculation time. For the first layer (first line of \Cref{tab:timecompare}), the input channel number is too small, so the calculation time is also short, and thus the backup time has reached half of the calculation time. 
+As described in \Cref{sec:virtualinstr}, the Layer-by-Layer interrupt method do not need to backup data before interruption ($t_2 = 0$). Though our Virtual-Instruction method (\textit{VI} method) need to spend time to backup the final results, which are already generated yet not stored to DDR ($t_2$). However, compared with computation, the time of data backup ($t_2$) is short. We list the backup time and the convolution time ($t_1$) at some of the interrupt position in \Cref{fig:scatter1024}, with different featuremap shape, kernel size, and input/output channels. $H$, $W$ are the height, width of input featuremaps. $Ch_{in}$, $Ch_{out}$ are the number of input and output channels. The time of backup and calculation is listed in $Backup$ and $Conv$ columns. The ratio of backup and calculation is listed in the last column. The backup operation only consumes less than 20\% of the calculation time. For the first layer (first line of \Cref{tab:timecompare}), the input channel number is too small, so the calculation time is also short, and thus the backup time has reached half of the calculation time. 
 
 % Table generated by Excel2LaTeX from sheet 'Sheet4'
 \begin{table}[t]
-  \centering
-  % \footnotesize
-  \caption{Time comparison between data backup and calculation}
-    \begin{tabular}{|c|c|c|c|c|c|c|c|}
-    \hline
-    \multirow{2}[2]{*}{$H$} & \multirow{2}[2]{*}{$W$} & \multirow{2}[2]{*}{$Ch_{in}$} & \multirow{2}[2]{*}{$Ch_{out}$} & Kernel & Backup & Conv  & \multirow{2}[2]{*}{$\frac{Backup}{Conv}$} \bigstrut[t]\\
-          &       &       &       & Size  & ($t_2$,$us$)  & ($t_1$,$us$)  &  \\
-    \hline
-    480   & 640   & 3     & 64    & $7 \times 7$ & 26.29  & 52.38  & 50.2\% \\
-    \hline
-    120   & 160   & 128   & 128   & $3 \times 3$ & 8.77  & 41.18  & 21.3\% \\
-    \hline
-    30    & 40    & 1024  & 2048  & $1 \times 1$ & 1.25  & 8.75  & 14.3\% \\
-    \hline
-    30    & 40    & 512   & 512   & $3 \times 3$ & 1.42  & 39.36  & 3.6\% \\
-    \hline
-    16    & 20    & 512   & 512   & $3 \times 3$ & 0.75  & 20.16  & 3.8\% \\
-    \hline
-    \end{tabular}%
-  \label{tab:timecompare}%
+ \centering
+ % \footnotesize
+ \caption{Time comparison between data backup and calculation}
+ \begin{tabular}{|c|c|c|c|c|c|c|c|}
+ \hline
+ \multirow{2}[2]{*}{$H$} & \multirow{2}[2]{*}{$W$} & \multirow{2}[2]{*}{$Ch_{in}$} & \multirow{2}[2]{*}{$Ch_{out}$} & Kernel & Backup & Conv & \multirow{2}[2]{*}{$\frac{Backup}{Conv}$} \bigstrut[t]\\
+  & & & & Size & ($t_2$,$us$) & ($t_1$,$us$) & \\
+ \hline
+ 480 & 640 & 3 & 64 & $7 \times 7$ & 26.29 & 52.38 & 50.2\% \\
+ \hline
+ 120 & 160 & 128 & 128 & $3 \times 3$ & 8.77 & 41.18 & 21.3\% \\
+ \hline
+ 30 & 40 & 1024 & 2048 & $1 \times 1$ & 1.25 & 8.75 & 14.3\% \\
+ \hline
+ 30 & 40 & 512 & 512 & $3 \times 3$ & 1.42 & 39.36 & 3.6\% \\
+ \hline
+ 16 & 20 & 512 & 512 & $3 \times 3$ & 0.75 & 20.16 & 3.8\% \\
+ \hline
+ \end{tabular}%
+ \label{tab:timecompare}%
 \end{table}%
 
 
@@ -119,96 +119,96 @@ We are here to remind the readers that the processing of the low-priority PR tas
 
 % % Table generated by Excel2LaTeX from sheet 'Sheet2'
 % \begin{table}[t]
-%   \small
-%   \centering
-%   \caption{Worst latency different interrupt positions.}
-%     % Table generated by Excel2LaTeX from sheet 'Sheet2'
+% \small
+% \centering
+% \caption{Worst latency different interrupt positions.}
+% % Table generated by Excel2LaTeX from sheet 'Sheet2'
 % \begin{tabular}{|c|c|c|c|c|c|}
-%   \hline
-%         & Backup  & Recovery & CPU-like & layer-by-layer & Virtual Instr. \bigstrut[t]\\
-%         & (KB)  & (KB)  &  Latency (ms) & Latency (ms)   & Latency (ms) \bigstrut[b]\\
-%   \hline
-%   Pose 1 &       &       &       &      &  \bigstrut\\
-%   \hline
-%   Pose 2 &       &       &       &      &  \bigstrut\\
-%   \hline
-%   Pose 3 &       &       &       &      &  \bigstrut\\
-%   \hline
-%   CPU-Like & 4000  & 4000  &     &       & <1 \bigstrut\\
-%   \hline
-%   Serial & -     & -     &     &   & - \bigstrut\\
-%   \hline
-%   \end{tabular}%
-  
-  
-%   \label{tab:anywhere}%
+% \hline
+%  & Backup & Recovery & CPU-like & layer-by-layer & Virtual Instr. \bigstrut[t]\\
+%  & (KB) & (KB) & Latency (ms) & Latency (ms) & Latency (ms) \bigstrut[b]\\
+% \hline
+% Pose 1 & & & & & \bigstrut\\
+% \hline
+% Pose 2 & & & & & \bigstrut\\
+% \hline
+% Pose 3 & & & & & \bigstrut\\
+% \hline
+% CPU-Like & 4000 & 4000 & & & <1 \bigstrut\\
+% \hline
+% Serial & - & - & & & - \bigstrut\\
+% \hline
+% \end{tabular}%
+ 
+ 
+% \label{tab:anywhere}%
 % \end{table}%
 
 
 \begin{figure}[t]
-  \centering
-%   \vspace{-0.1cm} 
-  % \setlength{\abovecaptionskip}{0cm} 
-%   \setlength{\belowcaptionskip}{-0.05cm} 
-  \includegraphics[width=0.99\linewidth]{fig/PRresult.pdf}
-  \vspace{-9mm}
-  \caption{The interrupt response latency \& extra time cost. Our VI method reaches both low latency and cost.}
-  \label{fig:scatter1024}
+ \centering
+% \vspace{-0.1cm} 
+ % \setlength{\abovecaptionskip}{0cm} 
+% \setlength{\belowcaptionskip}{-0.05cm} 
+ \includegraphics[width=0.99\linewidth]{fig/PRresult.pdf}
+ \vspace{-9mm}
+ \caption{The interrupt response latency \& extra time cost. Our \textit{VI} method reaches both low latency and cost.}
+ \label{fig:scatter1024}
 \end{figure}
 % Table generated by Excel2LaTeX from sheet 'Sheet2'
 \begin{table}[t]
-  \small
-  \centering
-  % \setlength{\abovecaptionskip}{2pt}
-  \caption{The instruction number of the interruptible PR network (ResNet101). }
-    % Table generated by Excel2LaTeX from sheet 'Sheet2'
+ \small
+ \centering
+ % \setlength{\abovecaptionskip}{2pt}
+ \caption{The instruction number of the interruptible PR network (ResNet101). }
+ % Table generated by Excel2LaTeX from sheet 'Sheet2'
 \begin{tabular}{|c|c|c|c|c|c|}
-  \hline
-         & Instr.  & Instr. & Execute \\
-        & Number   & volume (MB) & Time (ms) \\
-  \hline
-  Original ISA   &      364032      & 4.36 & 186.0 \\
-  \hline
-  VI-ISA   &     400243    & 4.80 & 186.4 \\
-  \hline
-  \end{tabular}%
-  \label{tab:instrnum}%
+ \hline
+  & Instr. & Instr. & Execute \\
+ & Number & volume (MB) & Time (ms) \\
+ \hline
+ Original ISA & 364032 & 4.36 & 186.0 \\
+ \hline
+ VI-ISA & 400243 & 4.80 & 186.4 \\
+ \hline
+ \end{tabular}%
+ \label{tab:instrnum}%
 \end{table}%
 
 
 
 % % Table generated by Excel2LaTeX from sheet 'Sheet1'
 % \begin{table}[t]
-%     \centering
-%     \caption{Interrupt after complete results vs Interrupt anywhere}
+% \centering
+% \caption{Interrupt after complete results vs Interrupt anywhere}
 % % Table generated by Excel2LaTeX from sheet 'Sheet2'
 % \begin{tabular}{|c|c|c|c|c|c|}
-%   \hline
-%   \multicolumn{1}{|c}{} &       & \multicolumn{1}{c|}{Backup } & \multicolumn{1}{c|}{Recovery} & Exe time & Performance \bigstrut[t]\\
-%   \multicolumn{1}{|c}{} &       & \multicolumn{1}{c|}{data (KB)} & \multicolumn{1}{c|}{ data (KB)} & (ms)  & Reduce \bigstrut[b]\\
-%   \hline
-%   \multicolumn{1}{|p{3.315em}|}{Inter } & \multicolumn{1}{p{3.69em}|}{AfterSave} &       &       &       &  \bigstrut\\
-%   \cline{2-6}\multicolumn{1}{|p{3.315em}|}{position 1} & Anyware &       &       &       &  \bigstrut\\
-%   \hline
-%   \multicolumn{1}{|p{3.315em}|}{Inter } & \multicolumn{1}{p{3.69em}|}{AfterSave} &       &       &       &  \bigstrut\\
-%   \cline{2-6}\multicolumn{1}{|p{3.315em}|}{ position 2} & Anyware &       &       &       &  \bigstrut\\
-%   \hline
-%   \multicolumn{1}{|p{3.315em}|}{Inter } & \multicolumn{1}{p{3.69em}|}{AfterSave} &       &       &       &  \bigstrut\\
-%   \cline{2-6}\multicolumn{1}{|p{3.315em}|}{position 3} & Anyware &       &       &       &  \bigstrut\\
-%   \hline
-%   \multicolumn{2}{|p{7.005em}|}{CPU-Like} &       &       &       &  \bigstrut\\
-%   \hline
-%   \multicolumn{1}{|c}{} &       & \multicolumn{1}{c|}{Instruction} & \multicolumn{1}{c|}{Latency} & Exe time & Performance \bigstrut[t]\\
-%   \multicolumn{1}{|c}{} &       & \multicolumn{1}{c|}{ (KB)} & \multicolumn{1}{c|}{(ms)} & (ms)  & Reduce \bigstrut[b]\\
-%   \hline
-%   \multicolumn{1}{|c|}{No} & \multicolumn{1}{p{3.69em}|}{Origin} &       &       &       & 0 \bigstrut\\
-%   \cline{2-6}\multicolumn{1}{|c|}{ Interrupt} & \multicolumn{1}{p{3.69em}|}{After results} &       &       &       &  \bigstrut\\
-%   \cline{2-6}      & Anyware &       &       &       &  \bigstrut\\
-%   \hline
-%   \end{tabular}%
-  
-%     \label{tab:anywhere}%
-%   \end{table}%
+% \hline
+% \multicolumn{1}{|c}{} & & \multicolumn{1}{c|}{Backup } & \multicolumn{1}{c|}{Recovery} & Exe time & Performance \bigstrut[t]\\
+% \multicolumn{1}{|c}{} & & \multicolumn{1}{c|}{data (KB)} & \multicolumn{1}{c|}{ data (KB)} & (ms) & Reduce \bigstrut[b]\\
+% \hline
+% \multicolumn{1}{|p{3.315em}|}{Inter } & \multicolumn{1}{p{3.69em}|}{AfterSave} & & & & \bigstrut\\
+% \cline{2-6}\multicolumn{1}{|p{3.315em}|}{position 1} & Anyware & & & & \bigstrut\\
+% \hline
+% \multicolumn{1}{|p{3.315em}|}{Inter } & \multicolumn{1}{p{3.69em}|}{AfterSave} & & & & \bigstrut\\
+% \cline{2-6}\multicolumn{1}{|p{3.315em}|}{ position 2} & Anyware & & & & \bigstrut\\
+% \hline
+% \multicolumn{1}{|p{3.315em}|}{Inter } & \multicolumn{1}{p{3.69em}|}{AfterSave} & & & & \bigstrut\\
+% \cline{2-6}\multicolumn{1}{|p{3.315em}|}{position 3} & Anyware & & & & \bigstrut\\
+% \hline
+% \multicolumn{2}{|p{7.005em}|}{CPU-Like} & & & & \bigstrut\\
+% \hline
+% \multicolumn{1}{|c}{} & & \multicolumn{1}{c|}{Instruction} & \multicolumn{1}{c|}{Latency} & Exe time & Performance \bigstrut[t]\\
+% \multicolumn{1}{|c}{} & & \multicolumn{1}{c|}{ (KB)} & \multicolumn{1}{c|}{(ms)} & (ms) & Reduce \bigstrut[b]\\
+% \hline
+% \multicolumn{1}{|c|}{No} & \multicolumn{1}{p{3.69em}|}{Origin} & & & & 0 \bigstrut\\
+% \cline{2-6}\multicolumn{1}{|c|}{ Interrupt} & \multicolumn{1}{p{3.69em}|}{After results} & & & & \bigstrut\\
+% \cline{2-6} & Anyware & & & & \bigstrut\\
+% \hline
+% \end{tabular}%
+ 
+% \label{tab:anywhere}%
+% \end{table}%
 
 
 
@@ -217,20 +217,20 @@ We are here to remind the readers that the processing of the low-priority PR tas
 % In this section, we evaluate the accuracy of the PR network on the CNN accelerator with fixed-point number. 
 
 % \begin{figure}[t]
-%     \centering
-%     \includegraphics[width=0.8\linewidth]{fig/PRresult.pdf}
-%     \caption{Precision-Recall curve on Citycenter dataset}
-%     \label{fig:PRcurve}
+% \centering
+% \includegraphics[width=0.8\linewidth]{fig/PRresult.pdf}
+% \caption{Precision-Recall curve on Citycenter dataset}
+% \label{fig:PRcurve}
 % \end{figure}
 
 % % We want to prove two things in our experiment. 1) The GeM network used in our work outperforms other networks such as NetVLAD. 2) The quantization of GeM CNN backbone don't bring about much drop in accuracy. 
-% We test 3 networks, a) float-point GeM, b) float-point NetVLAD, c) fixed-point GeM on Citycenter dataset [??] and draw the Precision-Recall curve. The result is shown in figure \ref{fig:PRcurve}. It's clear that after quantization, the accuracy slightly reduced and still outperforms the float-point NetVLAD network  ~\cite{arandjelovic2016netvlad}, especially at higher recall, which is used in the MA-Exploration system.
+% We test 3 networks, a) float-point GeM, b) float-point NetVLAD, c) fixed-point GeM on Citycenter dataset [??] and draw the Precision-Recall curve. The result is shown in figure \ref{fig:PRcurve}. It's clear that after quantization, the accuracy slightly reduced and still outperforms the float-point NetVLAD network~\cite{arandjelovic2016netvlad}, especially at higher recall, which is used in the MA-Exploration system.
 
 % \begin{figure}[t]
-%   \centering
-%   \includegraphics[width=0.8\linewidth]{fig/example.eps}
-%   \caption{Example of GeM performance.}
-%   \label{fig:gem_exp}
+% \centering
+% \includegraphics[width=0.8\linewidth]{fig/example.eps}
+% \caption{Example of GeM performance.}
+% \label{fig:gem_exp}
 % \end{figure}
 
 % Figure \ref{fig:gem_exp} shows an example in our similation environment. Picture 1 and Picture 2 is photoed in the same place and Picture 3 is photoed in another place. The computed similarity of Picture 1 and 2 is 0.8887, apparently larger than the similarity of Picture 2 and 3 (0.8046).
@@ -238,32 +238,32 @@ We are here to remind the readers that the processing of the low-priority PR tas
 % \subsubsection{efficiency}
 
 % \begin{table}
-%     \label{tab:gem_eff}
-%     \centering 
-%     \caption{running time comparison of each operation in PR}
-%     \begin{tabular}{|c|c|c|}
+% \label{tab:gem_eff}
+% \centering 
+% \caption{running time comparison of each operation in PR}
+% \begin{tabular}{|c|c|c|}
 % 				\hline
-%               & CPU & CPU+FPGA \\
-%         \hline
-%            &   48 ms &   42 ms \\
-% 			  \hline
-%     \end{tabular}
-%   \end{table}
+%  & CPU & CPU+FPGA \\
+%  \hline
+%  & 48 ms & 42 ms \\
+% 			 \hline
+% \end{tabular}
+% \end{table}
 
 % As illustrated in section \ref{sec:hardsoftcodesign}, we do optimization on GeM backend processing, i.e., the GeM pooling layer. We compare running time before and after optimization, and the result is shown in table \ref{tab:gem_eff}. After optimization, the total time reduces by 12.5\%.
 
 
 \subsection{ FE Evaluation }
 
-We evaluate the performance of the SuperPoint network in VO on the TUM dataset ~\cite{sturm12iros}. We evaluate SuperPoint against two well-known handcrafted FE systems: SIFT ~\cite{Lowe-478} and ORB ~\cite{Mur-Artal:2017281}. 
+We evaluate the performance of the SuperPoint network in VO on the TUM dataset~\cite{sturm12iros}. We evaluate SuperPoint against two well-known handcrafted FE systems: SIFT~\cite{Lowe-478} and ORB~\cite{Mur-Artal:2017281}. 
 We also evaluate the performance after optimization. 
 We extract a maximum of 200 feature-points at a $480\times640$ input resolution. 
 In PS side, We perform nearest neighbor matching from descriptors in adjacent frames. The VO operations to generate the 6-DoF pose are also performed at the PS side.
 % with a maximum allowable distance $d_m$. $d_m$ is not the same in three FE systems because these three descriptors are different. 
-% In PS side, we use an OpenCV implementation (solvePnP()) with all the matches to compute the transform matrix  ~\cite{LepetitMoreno-Noguer-EPnP}, and use Bundle Adjustment (BA) to optimize results  ~\cite{TriggsMclauchlan-Bundle-Adjustment}. 
+% In PS side, we use an OpenCV implementation (solvePnP()) with all the matches to compute the transform matrix~\cite{LepetitMoreno-Noguer-EPnP}, and use Bundle Adjustment (BA) to optimize results~\cite{TriggsMclauchlan-Bundle-Adjustment}. 
 % All the computation of this experiment is all done on the CPU except CNN of SuperPoint. 
 
-Results on TUM dataset ~\cite{sturm12iros} are shown in \Cref{tab:VO}. In terms of accuracy, SuperPoint outperforms ORB and SIFT. Our optimizations, including fixed-point quantization, and post-processing acceleration, do not introduce a large loss of accuracy. 
+Results on TUM dataset~\cite{sturm12iros} are shown in \Cref{tab:VO}. In terms of accuracy, SuperPoint outperforms ORB and SIFT. Our optimizations, including fixed-point quantization, and post-processing acceleration, do not introduce a large loss of accuracy. 
 
 \Cref{fig:dputorch} illustrates the visual results of ORB, SIFT, the original SuperPoint, and our design on some representative pictures to visualize the feature-point extraction method. 
 SuperPoint tends to produce more correct matches, and the feature-points are scattered throughout the whole input image, which is consistent with intuitive human feelings. 
@@ -278,75 +278,75 @@ Our design reaches a similar performance of the original SuperPoint.
 We compare the running time of each operation in SuperPoint post-processing before and after the optimization. Results are shown in \Cref{tab:optimization}. The running time of post-processing is reduced by more than $20\times$. There is a certain gap between the experimental results of the acceleration effect and the theoretical derivation in \Cref{subsec:FEopt}. The possible reason is that the CPU needs time to schedule the FPGA accelerator.
 
 \begin{table}[t]
-  \centering
-  % \setlength{\abovecaptionskip}{2pt} 
-  \caption{ Accuracy and running time results on the TUM ~\cite{sturm12iros} dataset  }
-  \footnotesize
-  \begin{threeparttable}
+ \centering
+ % \setlength{\abovecaptionskip}{2pt} 
+ \caption{ Accuracy and running time results on the TUM~\cite{sturm12iros} dataset }
+ \footnotesize
+ \begin{threeparttable}
 % Table generated by Excel2LaTeX from sheet 'Sheet2'
 \begin{tabular}{|c|c|c|c|} 
-  \hline
-        & RPE$^2$(m/s) & ATE$^3$(m)  & Running time (ms) \bigstrut\\
-  \hline
-  SIFT  ~\cite{Lowe-478}  & 0.0319  & 0.4219 & 2397  \bigstrut\\
-  \hline
-  ORB  ~\cite{Mur-Artal:2017281}  & 0.0577  & 0.6105 & 229  \bigstrut\\
-  \hline
-  Original SuperPoint  ~\cite{detone2018superpoint} & 0.0280  & 0.3671 & 259  \bigstrut\\
-  \hline
-  Our Fixed SuperPoint  & 0.0283  & 0.3976 & 59  \bigstrut\\
-  \hline
-  \end{tabular}%
-  
+ \hline
+ & RPE$^2$(m/s) & ATE$^3$(m) & Running time (ms) \bigstrut\\
+ \hline
+ SIFT~\cite{Lowe-478} & 0.0319 & 0.4219 & 2397 \bigstrut\\
+ \hline
+ ORB~\cite{Mur-Artal:2017281} & 0.0577 & 0.6105 & 229 \bigstrut\\
+ \hline
+ Original SuperPoint~\cite{detone2018superpoint} & 0.0280 & 0.3671 & 259 \bigstrut\\
+ \hline
+ Our Fixed SuperPoint & 0.0283 & 0.3976 & 59 \bigstrut\\
+ \hline
+ \end{tabular}%
+ 
 
 \begin{tablenotes}
-  \scriptsize
-  \item[1] RPE is the mean Relative Pose Error to indicate the translational drift per second. The less, the better.
-  \item[2] ATE is the root mean square Absolute Trajectory Error to indicate the translational drift of the entire trajectory. The less, the better.
+ \scriptsize
+ \item[1] RPE is the mean Relative Pose Error to indicate the translational drift per second. The less, the better.
+ \item[2] ATE is the root mean square Absolute Trajectory Error to indicate the translational drift of the entire trajectory. The less, the better.
 \end{tablenotes}
-    \end{threeparttable}
-  \label{tab:VO}%
+ \end{threeparttable}
+ \label{tab:VO}%
 \end{table}%
 
 
 \begin{figure}[t]
-  \centering  
-  \includegraphics[width=0.99\linewidth]{fig/visual.pdf}
-  \vspace{-5mm}
-  \caption{Visualized results of feature-point extraction. The green lines show correct correspondences. SuperPoint tends to produce more correct matches, and the feature-points are scattered throughout the whole input image. }
-  \label{fig:dputorch}
+ \centering 
+ \includegraphics[width=0.99\linewidth]{fig/visual.pdf}
+ \vspace{-5mm}
+ \caption{Visualized results of feature-point extraction. The green lines show correct correspondences. SuperPoint tends to produce more correct matches, and the feature-points are scattered throughout the whole input image. }
+ \label{fig:dputorch}
 \end{figure}
 
 
 \begin{table}[t]
-  \centering
-  % \setlength{\abovecaptionskip}{2pt}
-  \caption{Running time comparison of each FE operation}
-    \begin{threeparttable}
+ \centering
+ % \setlength{\abovecaptionskip}{2pt}
+ \caption{Running time comparison of each FE operation}
+ \begin{threeparttable}
 % Table generated by Excel2LaTeX from sheet 'Sheet2'
 \begin{tabular}{|c|c|c|c|c|c|}
-  \hline
-             &CNN$^*$ &    Softmax &        NMS &       Rank &  Norm \\
-  \hline
-         CPU & \multirow{2}{*}{24ms} &      31ms &       27ms &       0.97ms &       42ms \\
-  \cline{1-1} \cline{3-6}
-    Ours & \multirow{2}{*}{} &    1.97ms &      0.7ms &     0.12ms &     1.44ms \\
-  \hline
-  \end{tabular} 
-  
+ \hline
+  &CNN$^*$ & Softmax & NMS & Rank & Norm \\
+ \hline
+  CPU & \multirow{2}{*}{24ms} & 31ms & 27ms & 0.97ms & 42ms \\
+ \cline{1-1} \cline{3-6}
+ Ours & \multirow{2}{*}{} & 1.97ms & 0.7ms & 0.12ms & 1.44ms \\
+ \hline
+ \end{tabular} 
+ 
 \begin{tablenotes}
-    \footnotesize
-   \item[*] CNN backbone runs on the accelerator in both experiment setups.  
+ \footnotesize
+ \item[*] CNN backbone runs on the accelerator in both experiment setups. 
 \end{tablenotes}
-    \end{threeparttable}
-  
-  \label{tab:optimization}%
+ \end{threeparttable}
+ 
+ \label{tab:optimization}%
 \end{table}%
 
 
 % \vspace*{-2mm}
 \subsection{ ROS based MR-Exploration }
 
-The results of the Multi-Robot Exploration based on INCAME is shown in \Cref{fig:env}. The space in the AirSim~\cite{shah2018airsim} for the robots to explore is shown in \Cref{fig:env}(a). It is a simple rectangle area with four different pillars, and some chairs at the center (in the white box).  \Cref{fig:env}(b) shows how PR works for map merging. The FE and VO of each agent produce the local map and trajectory on each ZCU102 board. When the PR threads on different agents find out a similar scene, the relative pose of the two agents at the similar scene is calculated. The map and the trajectory is merged with the calculated relative pose, as shown in \Cref{fig:env}(c).
+The results of the Multi-Robot Exploration based on INCAME is shown in \Cref{fig:env}. The space in the AirSim~\cite{shah2018airsim} for the robots to explore is shown in \Cref{fig:env}(a). It is a simple rectangle area with four different pillars, and some chairs at the center (in the white box). \Cref{fig:env}(b) shows how PR works for map merging. The FE and VO of each agent produce the local map and trajectory on each ZCU102 board. When the PR threads on different agents find out a similar scene, the relative pose of the two agents at the similar scene is calculated. The map and the trajectory is merged with the calculated relative pose, as shown in \Cref{fig:env}(c).
 
 In this example, the FE and PR are both executed on the same Angel-Eye accelerator. The frequency of the input camera is 20fps. As soon as an input frame is fed to the FE, and FE module would take up accelerator. While the CPU process VO with the feature-points from FE, the accelerator can switch to process the low-priority PR task. Because the executing time of VO varies, the time to finish a PR task is different. In this example, the time from the beginning of a PR to its end is 320$\sim$500 ms. Thus, the PR process one keyframe every 7$\sim$10 input frames.

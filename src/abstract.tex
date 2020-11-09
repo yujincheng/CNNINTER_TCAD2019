@@ -3,8 +3,7 @@
 % To deploy CNN on the embedded real-time system, previous works design CNN accelerators on FPGA. 
 % However, these accelerators mainly focus on improving the performance of a single network, lacking support for multi-task. 
 % Since researchers in robotic usually run different CNN tasks simultaneously, the inability of accelerators to support multi-task makes it difficult for researchers in robotic to use embedded FPGA. 
-% Furthermore, the post-processing of  CNN-based components (such as FE and PR), which is also computation consuming, becomes the bottleneck of the system, after accelerating the CNN backbones.
-
+% Furthermore, the post-processing of CNN-based components (such as FE and PR), which is also computation consuming, becomes the bottleneck of the system, after accelerating the CNN backbones.
 Multi-Robot Exploration (MR-Exploration) that provides the location and map is a primary task for many multi-robot applications. Recent researches introduce Convolutional Neural Network (CNN) into critical components in MR-Exploration, such as Feature-point Extraction (FE) and Place Recognition (PR), to improve the system performance. This CNN-based MR-Exploration needs to run multiple CNN models and complex post-processing algorithms simultaneously, which significantly challenges the hardware platforms of embedded systems.
 Previous researches have shown that FPGA is ideal for CNN processing on embedded platforms. However, such accelerators usually process different models in sequence and cannot schedule multiple tasks at runtime. Furthermore, the post-processing of CNNs is also computationally intensive and becomes the bottleneck of the whole system.
 
